@@ -843,6 +843,271 @@ void LCAO_Descriptor::cal_e_delta_band_k(const std::vector<ModuleBase::ComplexMa
     return;
 }
 
+//calculating the correction of (LUMO-HOMO) energies, i.e., band gap corrections 
+//for gamma_only calculations
+void LCAO_Descriptor::cal_o_delta(const std::vector<ModuleBase::matrix> &dm_hl)
+{
+    ModuleBase::TITLE("LCAO_Descriptor", "cal_o_delta");
+    this->o_delta = 0;
+    for (int i = 0; i < GlobalV::NLOCAL; ++i)
+    {
+        for (int j = 0; j < GlobalV::NLOCAL; ++j)
+        {
+            const int mu = GlobalC::ParaO.trace_loc_row[j];
+            const int nu = GlobalC::ParaO.trace_loc_col[i];
+            
+            if (mu >= 0 && nu >= 0)
+            {                
+                const int index=nu*GlobalC::ParaO.nrow+mu;
+                for (int is = 0; is < GlobalV::NSPIN; ++is)
+                {
+                    this->o_delta += dm_hl[is](nu, mu) * this->H_V_delta[index];
+                }
+            }
+        }
+    }
+    Parallel_Reduce::reduce_double_all(this->o_delta);
+    return;
+}
+
+//calculating the correction of (LUMO-HOMO) energies, i.e., band gap corrections
+//for multi_k calculations
+void LCAO_Descriptor::cal_o_delta_k(const std::vector<ModuleBase::ComplexMatrix> &dm_hl)
+{
+    ModuleBase::TITLE("LCAO_Descriptor", "cal_o_delta_k");
+    std::complex<double> o_delta_k=std::complex<double>(0.0,0.0);
+    for (int i = 0; i < GlobalV::NLOCAL; ++i)
+    {
+        for (int j = 0; j < GlobalV::NLOCAL; ++j)
+        {
+            const int mu = GlobalC::ParaO.trace_loc_row[j];
+            const int nu = GlobalC::ParaO.trace_loc_col[i];
+            
+            if (mu >= 0 && nu >= 0)
+            {                
+                int iic;
+                if(GlobalV::KS_SOLVER=="genelpa" || GlobalV::KS_SOLVER=="scalapack_gvx")  // save the matrix as column major format
+                {
+                    iic=mu+nu*GlobalC::ParaO.nrow;
+                }
+                else
+                {
+                    iic=mu*GlobalC::ParaO.ncol+nu;
+                }
+                for(int ik=0;ik<GlobalC::kv.nks;ik++)
+                {
+                    o_delta_k += dm_hl[ik](nu, mu) * this->H_V_delta_k[ik][iic];
+                }
+            }
+        }
+    }
+    Parallel_Reduce::reduce_complex_double_all(o_delta_k);
+    if(o_delta_k.imag()>1e-12)
+    {
+        GlobalV::ofs_running << "o_delta_k : " << o_delta_k << std::endl;
+        //ModuleBase::WARNING_QUIT("o_delta_k","energy should be real!");
+    }
+    this->o_delta = o_delta_k.real();
+    return;
+}
+
+// calculates orbital_precalc[1,NAt,NDscrpt] = gvdm * orbital_pdm_shells;
+// orbital_pdm_shells[1,Inl,nm*nm] = dm_hl * overlap * overlap;
+// gvdm[NAt,NDscrpt,NPrjct]
+
+void LCAO_Descriptor::init_orbital_pdm_shell(void)
+{
+    
+    this->orbital_pdm_shell = new double** [1];
+
+    for (int hl=0; hl<1; hl++)
+    {
+        this->orbital_pdm_shell[hl] = new double* [this->inlmax];
+
+        for(int inl = 0; inl < this->inlmax; inl++)
+        {
+            this->orbital_pdm_shell[hl][inl] = new double [(2 * this->lmaxd + 1) * (2 * this->lmaxd + 1)];
+            ModuleBase::GlobalFunc::ZEROS(orbital_pdm_shell[hl][inl], (2 * this->lmaxd + 1) * (2 * this->lmaxd + 1));
+        }
+
+    }
+
+    return;
+}
+
+
+void LCAO_Descriptor::del_orbital_pdm_shell(void)
+{
+    for (int hl=0; hl<1; hl++)
+    {
+        for (int inl = 0;inl < this->inlmax; inl++)
+        {
+            delete[] this->orbital_pdm_shell[hl][inl];
+        }
+        delete[] this->orbital_pdm_shell[hl];
+    }
+    delete[] this->orbital_pdm_shell;
+
+    return;
+}
+
+
+void LCAO_Descriptor::cal_orbital_precalc(const std::vector<ModuleBase::matrix> &dm_hl)
+{
+    ModuleBase::TITLE("LCAO_DESCRIPTOR", "calc_orbital_precalc");
+
+    this->cal_gvdm();
+    const double Rcut_Alpha = GlobalC::ORB.Alpha[0].getRcut();
+    this->init_orbital_pdm_shell();
+   
+    for (int T0 = 0; T0 < GlobalC::ucell.ntype; T0++)
+    {
+		Atom* atom0 = &GlobalC::ucell.atoms[T0]; 
+        
+        for (int I0 =0; I0< atom0->na; I0++)
+        {
+            const int iat = GlobalC::ucell.itia2iat(T0,I0);
+            const ModuleBase::Vector3<double> tau0 = atom0->tau[I0];
+            GlobalC::GridD.Find_atom(GlobalC::ucell, atom0->tau[I0] ,T0, I0);
+
+            for (int ad1=0; ad1<GlobalC::GridD.getAdjacentNum()+1 ; ++ad1)
+            {
+                const int T1 = GlobalC::GridD.getType(ad1);
+                const int I1 = GlobalC::GridD.getNatom(ad1);
+                const int start1 = GlobalC::ucell.itiaiw2iwt(T1, I1, 0);
+                const ModuleBase::Vector3<double> tau1 = GlobalC::GridD.getAdjacentTau(ad1);
+				const Atom* atom1 = &GlobalC::ucell.atoms[T1];
+				const int nw1_tot = atom1->nw*GlobalV::NPOL;
+				const double Rcut_AO1 = GlobalC::ORB.Phi[T1].getRcut(); 
+
+				for (int ad2=0; ad2 < GlobalC::GridD.getAdjacentNum()+1 ; ad2++)
+				{
+					const int T2 = GlobalC::GridD.getType(ad2);
+					const int I2 = GlobalC::GridD.getNatom(ad2);
+					const int start2 = GlobalC::ucell.itiaiw2iwt(T2, I2, 0);
+					const ModuleBase::Vector3<double> tau2 = GlobalC::GridD.getAdjacentTau(ad2);
+					const Atom* atom2 = &GlobalC::ucell.atoms[T2];
+					const int nw2_tot = atom2->nw*GlobalV::NPOL;
+					
+					const double Rcut_AO2 = GlobalC::ORB.Phi[T2].getRcut();
+                	const double dist1 = (tau1-tau0).norm() * GlobalC::ucell.lat0;
+                	const double dist2 = (tau2-tau0).norm() * GlobalC::ucell.lat0;
+
+					if (dist1 > Rcut_Alpha + Rcut_AO1 || dist2 > Rcut_Alpha + Rcut_AO2)
+					{
+						continue;
+					}
+
+					for (int iw1=0; iw1<nw1_tot; ++iw1)
+					{
+						const int iw1_all = start1 + iw1; // this is \mu
+						const int iw1_local = GlobalC::ParaO.trace_loc_row[iw1_all];
+						if(iw1_local < 0)continue;
+						const int iw1_0 = iw1/GlobalV::NPOL;
+						for (int iw2=0; iw2<nw2_tot; ++iw2)
+						{
+							const int iw2_all = start2 + iw2; // this is \nu
+							const int iw2_local = GlobalC::ParaO.trace_loc_col[iw2_all];
+							if(iw2_local < 0)continue;
+							const int iw2_0 = iw2/GlobalV::NPOL;
+
+                            std::vector<double> nlm1 = this->nlm_save[iat][ad1][iw1_all][0];
+                            std::vector<double> nlm2 = this->nlm_save[iat][ad2][iw2_all][0];
+
+                            assert(nlm1.size()==nlm2.size());
+                            int ib=0;
+                            for (int L0 = 0; L0 <= GlobalC::ORB.Alpha[0].getLmax();++L0)
+                            {
+                                for (int N0 = 0;N0 < GlobalC::ORB.Alpha[0].getNchi(L0);++N0)
+                                {
+                                    const int inl = this->inl_index[T0](I0, L0, N0);
+                                    const int nm = 2*L0+1;
+                                    
+                                    for (int m1=0; m1<nm; ++m1) // m1 = 1 for s, 3 for p, 5 for d
+                                    {
+                                        for (int m2=0; m2<nm; ++m2) // m1 = 1 for s, 3 for p, 5 for d
+                                        {
+                                            //int ispin = 0; //only works for closed shell;
+                                            for (int is = 0; is < GlobalV::NSPIN; ++is)
+                                            {   
+                                                orbital_pdm_shell[0][inl][m1*nm+m2] += dm_hl[0](iw2_local,iw1_local)*nlm1[ib+m1]*nlm2[ib+m2];
+                                            } 
+                                        }
+                                    }
+                                    ib+=nm;
+                                }
+                            }                            
+
+						}//iw2
+					}//iw1
+				}//ad2
+			}//ad1   
+            
+        }
+    }
+#ifdef __MPI
+    for(int inl = 0; inl < this->inlmax; inl++)
+    {
+        Parallel_Reduce::reduce_double_all(this->orbital_pdm_shell[0][inl],(2 * this->lmaxd + 1) * (2 * this->lmaxd + 1));
+    }
+#endif    
+    
+    // transfer orbital_pdm_shell to orbital_pdm_shell_vector
+    
+
+    int nlmax = this->inlmax/GlobalC::ucell.nat;
+   
+    std::vector<torch::Tensor> orbital_pdm_shell_vector;
+    
+    for(int nl = 0; nl < nlmax; ++nl)
+    {
+        std::vector<torch::Tensor> iammv;
+        for(int hl=0; hl<1; ++hl)
+        {
+            std::vector<torch::Tensor> ammv;
+            for (int iat=0; iat<GlobalC::ucell.nat; ++iat)
+            {
+                int inl = iat*nlmax+nl;
+                int nm = 2*this->inl_l[inl]+1;
+                std::vector<double> mmv;
+                
+                for (int m1=0; m1<nm; ++m1) // m1 = 1 for s, 3 for p, 5 for d
+                {
+                    for (int m2=0; m2<nm; ++m2) // m1 = 1 for s, 3 for p, 5 for d
+                    {
+                        mmv.push_back(this->orbital_pdm_shell[hl][inl][m1*nm+m2]);
+                    }
+                
+                }
+                torch::Tensor mm = torch::tensor(mmv, torch::TensorOptions().dtype(torch::kFloat64) ).reshape({nm, nm});    //nm*nm
+                ammv.push_back(mm);
+            }
+            
+            torch::Tensor amm = torch::stack(ammv, 0); 
+            iammv.push_back(amm);
+        }
+        
+        torch::Tensor iamm = torch::stack(iammv, 0);  //inl*nm*nm
+        orbital_pdm_shell_vector.push_back(iamm);
+    }
+       
+    
+    assert(orbital_pdm_shell_vector.size() == nlmax);
+        
+    
+    //einsum for each nl: 
+    std::vector<torch::Tensor> orbital_precalc_vector;
+    for (int nl = 0; nl<nlmax; ++nl)
+    {
+        orbital_precalc_vector.push_back(at::einsum("iamn, avmn->iav", {orbital_pdm_shell_vector[nl], this->gevdm_vector[nl]}));
+    }
+       
+    this->orbital_precalc_tensor = torch::cat(orbital_precalc_vector, -1);
+       
+    this->del_orbital_pdm_shell();
+	return;
+}
+
 //calculates sum_(L0,M0) alpha<psi_i|alpha><alpha|psi_j>
 //and accumulate the value to H_V_delta(i,j)
 //as well as the counterpart in forces, if calc_deri=1

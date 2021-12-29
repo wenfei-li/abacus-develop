@@ -104,6 +104,15 @@ public:
     void cal_e_delta_band(const std::vector<ModuleBase::matrix>& dm/**<[in] density matrix*/);
     void cal_e_delta_band_k(const std::vector<ModuleBase::ComplexMatrix>& dm/**<[in] density matrix*/);
 
+    ///calculate tr(\rho V_delta) for (LUMO-HOMO), i.e. band gap. QO added on 2021-12-15
+    void cal_o_delta(const std::vector<ModuleBase::matrix>& dm_hl/**<[in] density matrix*/);
+    void cal_o_delta_k(const std::vector<ModuleBase::ComplexMatrix>& dm_hl/**<[in] density matrix*/);
+
+    //for bandgap label calculation; QO added on 2021-12-15
+    void init_orbital_pdm_shell(void);
+    void del_orbital_pdm_shell(void);
+    void cal_orbital_precalc(const std::vector<ModuleBase::matrix>& dm_hl/**<[in] density matrix*/);
+
 //============================
 //DeePKS Part 3
 //subroutines that deals with io as well as interface with libtorch
@@ -152,6 +161,10 @@ public:
 	void save_npy_f(const ModuleBase::matrix &fbase/**<[in] \f$F_{base}\f$ or \f$F_{tot}\f$, in Ry/Bohr*/, const std::string &f_file);
     void save_npy_gvx(void);
 
+    //QO added on 2021-12-15
+    void save_npy_o(const double &bandgap/**<[in] \f$E_{base}\f$ or \f$E_{tot}\f$, in Ry*/, const std::string &o_file);
+    void save_npy_orbital_precalc(void);
+
 //==============
 //obsolete subroutines, in LCAO_descriptor_old.cpp
 //==============
@@ -181,6 +194,11 @@ public:
     double E_delta = 0.0;
     ///(Unit: Ry)  \f$tr(\rho H_\delta), \rho = \sum_i{c_{i, \mu}c_{i,\nu}} \f$ (for gamma_only)
     double e_delta_band = 0.0;
+
+    ///(Unit: Ry)  \f$tr(\rho_{HL} H_\delta), 
+    ///\rho_{HL} = c_{L, \mu}c_{L,\nu} - c_{H, \mu}c_{H,\nu} \f$ (for gamma_only)
+    double o_delta = 0.0;
+
     ///Correction term to the Hamiltonian matrix: \f$\langle\psi|V_\delta|\psi\rangle\f$
     double* H_V_delta;
 
@@ -211,6 +229,9 @@ private:
 	double** DS_mu_alpha_x;
 	double** DS_mu_alpha_y;
 	double** DS_mu_alpha_z;
+
+    double*** orbital_pdm_shell;
+
 
     // saves <psi(0)|alpha(R)>
     std::vector<std::vector<std::unordered_map<int,std::vector<std::vector<double>>>>> nlm_save;
@@ -246,6 +267,7 @@ private:
     //dD/dX, tensor form of gdmx
     std::vector<torch::Tensor> gdmr_vector;
 
+    torch::Tensor orbital_precalc_tensor;
 
     ///size of descriptor(projector) basis set
     int n_descriptor;

@@ -59,7 +59,8 @@ void LCAO_Descriptor::cal_gvx(const ModuleBase::matrix &dm)
 {
     ModuleBase::TITLE("LCAO_Descriptor","cal_gvx");
     //preconditions
-    this->cal_gvdm();
+    if(GlobalV::deepks_bandgap==0) //Qi added for avoiding conficts when adding bandgap label, which computes gvdm already.
+        this->cal_gvdm();
 
     this->build_S_descriptor(1);
     this->init_gdmx();
@@ -576,6 +577,40 @@ void LCAO_Descriptor::save_npy_gvx(void)
         }
     }
     npy::SaveArrayAsNumpy("grad_vx.npy", false, 4, gshape, npy_gvx);
+    return;
+}
+
+void LCAO_Descriptor::save_npy_o(const double &bandgap, const std::string &o_file)
+{
+    ModuleBase::TITLE("LCAO_Descriptor", "save_npy_o");
+    //save o_base
+    const long unsigned oshape[] = { 1 };
+    vector<double> npy_o;
+    npy_o.push_back(bandgap);
+    npy::SaveArrayAsNumpy(o_file, false, 1, oshape, npy_o);
+    return;
+}
+
+void LCAO_Descriptor::save_npy_orbital_precalc(void)
+{
+    ModuleBase::TITLE("LCAO_Descriptor", "save_npy_orbital_precalc");
+    //save orbital_precalc.npy (when bandgap label is in use)
+    //unit: a.u.
+    const long unsigned gshape[] = {(long unsigned) 1, GlobalC::ucell.nat, this->des_per_atom};
+    vector<double> npy_orbital_precalc;
+    for (int hl = 0;hl < 1; ++hl)
+    {
+        
+        for (int iat = 0;iat < GlobalC::ucell.nat;++iat)
+        {
+            for(int p=0; p<this->des_per_atom; ++p)
+            {
+                npy_orbital_precalc.push_back(this->orbital_precalc_tensor.index({ hl, iat, p }).item().toDouble());
+            }
+        }
+        
+    }
+    npy::SaveArrayAsNumpy("orbital_precalc.npy", false, 3, gshape, npy_orbital_precalc);
     return;
 }
 
