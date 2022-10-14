@@ -26,6 +26,7 @@ void XC_Functional::tau_xc(const double &rho, const double &grho, const double &
         v1xc += v1;
         v3xc += v3;
     }
+    finish_func(funcs);
 
 	return;
 }
