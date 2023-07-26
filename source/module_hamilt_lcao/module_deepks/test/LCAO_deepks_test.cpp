@@ -94,7 +94,7 @@ void test_deepks::check_pdm(void)
 	if(GlobalV::GAMMA_ONLY_LOCAL)
 	{
 		this->read_dm();
-		this->ld.cal_projected_DM(dm[0],
+		this->ld.cal_projected_DM(dm,
 			ucell,
 			ORB,
             Test_Deepks::GridD);

@@ -271,7 +271,7 @@ public:
 
     ///calculate projected density matrix:
     ///pdm = sum_i,occ <phi_i|alpha1><alpha2|phi_k>
-    void cal_projected_DM(const ModuleBase::matrix& dm/**< [in] density matrix*/,
+    void cal_projected_DM(const std::vector<ModuleBase::matrix>& dm/**< [in] density matrix*/,
         const UnitCell &ucell,
         const LCAO_Orbitals &orb,
         Grid_Driver& GridD);
