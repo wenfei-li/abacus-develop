@@ -42,22 +42,14 @@ LCAO_DftU_New::~LCAO_DftU_New()
     {
         for (int inl = 0;inl < this->inlmax;inl++)
         {
-            delete[] pdm[is][inl];
+            delete[]  pdm[is][inl];
+            delete[] gedm[is][inl];
         }
-        delete[] pdm[is];
+        delete[]  pdm[is];
+        delete[] gedm[is];
     }
-    delete[] pdm;
-
-    //=======2. "deepks_scf" part==========
-    if (GlobalV::deepks_scf)
-    {
-        //delete gedm**
-        for (int inl = 0;inl < this->inlmax;inl++)
-        {
-            delete[] gedm[inl];
-        }
-        delete[] gedm;
-    }
+    delete[]  pdm;
+    delete[] gedm;
 }
 
 void LCAO_DftU_New::init(
@@ -181,11 +173,15 @@ void LCAO_DftU_New::allocate_V_delta(const int nat, const int nks)
 
     //init gedm**
     const int pdm_size = (this->lmaxd * 2 + 1) * (this->lmaxd * 2 + 1);
-    this->gedm = new double* [this->inlmax];
-    for (int inl = 0;inl < this->inlmax;inl++)
+    this->gedm = new double** [GlobalV::NSPIN];
+    for(int is = 0; is < GlobalV::NSPIN; is ++)
     {
-        this->gedm[inl] = new double[pdm_size];
-        ModuleBase::GlobalFunc::ZEROS(this->gedm[inl], pdm_size);
+        this->gedm[is] = new double* [this->inlmax];
+        for (int inl = 0;inl < this->inlmax;inl++)
+        {
+            this->gedm[is][inl] = new double[pdm_size];
+            ModuleBase::GlobalFunc::ZEROS(this->gedm[inl], pdm_size);
+        }
     }
     if (GlobalV::CAL_FORCE)
     {
@@ -210,47 +206,4 @@ void LCAO_DftU_New::allocate_V_deltaR(const int nnr)
     delete[] H_V_deltaR;
     H_V_deltaR = new double[nnr];
     ModuleBase::GlobalFunc::ZEROS(H_V_deltaR, nnr);
-}
-
-void LCAO_DftU_New::init_orbital_pdm_shell(const int nks)
-{
-    
-    this->orbital_pdm_shell = new double*** [nks];
-
-    for (int iks=0; iks<nks; iks++)
-    {
-        this->orbital_pdm_shell[iks] = new double** [1];
-        for (int hl=0; hl < 1; hl++)
-        {
-            this->orbital_pdm_shell[iks][hl] = new double* [this->inlmax];
-
-            for(int inl = 0; inl < this->inlmax; inl++)
-            {
-                this->orbital_pdm_shell[iks][hl][inl] = new double [(2 * this->lmaxd + 1) * (2 * this->lmaxd + 1)];
-                ModuleBase::GlobalFunc::ZEROS(orbital_pdm_shell[iks][hl][inl], (2 * this->lmaxd + 1) * (2 * this->lmaxd + 1));
-            }
-        }
-    }
-
-    return;
-}
-
-
-void LCAO_DftU_New::del_orbital_pdm_shell(const int nks)
-{
-    for (int iks=0; iks<nks; iks++)
-    {
-        for (int hl=0; hl<1; hl++)
-        {
-            for (int inl = 0;inl < this->inlmax; inl++)
-            {
-                delete[] this->orbital_pdm_shell[iks][hl][inl];
-            }
-            delete[] this->orbital_pdm_shell[iks][hl];
-        }
-        delete[] this->orbital_pdm_shell[iks];
-    }
-     delete[] this->orbital_pdm_shell;    
-
-    return;
 }

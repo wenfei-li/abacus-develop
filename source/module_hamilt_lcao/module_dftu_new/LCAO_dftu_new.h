@@ -73,7 +73,7 @@ private:
 	double*** pdm;	//[tot_Inl][2l+1][2l+1]	caoyu modified 2021-05-07
 
 	// +U correction strength
-	double** gedm;	//[tot_Inl][2l+1][2l+1]
+	double*** gedm;	//[tot_Inl][2l+1][2l+1]
 
 	ModuleBase::IntArray* inl_index;	//caoyu add 2021-05-07
 	int* inl_l;	//inl_l[inl_index] = l of projector with inl_index
@@ -184,6 +184,15 @@ public:
         const int * isk,
         const std::vector<ModuleBase::Vector3<double>> &kvec_d);
     void check_projected_dm(void);
+
+//-------------------
+// LCAO_dftu_new_gedm.cpp
+//-------------------
+
+//This file contains subroutines for calculating gedm, namely the
+//correction potential in DFT+U, defined as (U-J)(1/2-n), where n is the occupation matrix
+
+    void cal_gedm(const int nat);
 
 //-------------------
 // LCAO_dftu_new_vdelta.cpp
