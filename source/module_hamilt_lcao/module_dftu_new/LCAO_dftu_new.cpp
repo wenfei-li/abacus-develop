@@ -1,5 +1,5 @@
 //wenfei 2022-1-5
-//This file contains constructor and destructor of the class LCAO_deepks, 
+//This file contains constructor and destructor of the class LCAO_dftu_new, 
 //as well as subroutines for initializing and releasing relevant data structures 
 
 //Other than the constructor and the destructor, it contains 3 types of subroutines:
@@ -18,9 +18,7 @@
 //      init_gdmx, as well as allocating F_delta
 //  - allocate_V_deltaR : allcoates H_V_deltaR, for multi-k calculations
 
-#ifdef __DEEPKS
-
-#include "LCAO_deepks.h"
+#include "LCAO_dftu_new.h"
 #include "module_hamilt_pw/hamilt_pwdft/global.h"
 
 namespace GlobalC
@@ -361,5 +359,3 @@ void LCAO_Deepks::del_orbital_pdm_shell(const int nks)
 
     return;
 }
-
-#endif

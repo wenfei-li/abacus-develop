@@ -16,9 +16,7 @@
 //5. cal_gdmx_k, counterpart of 3, for multi-k
 //6. check_gdmx, which prints gdmx to a series of .dat files
 
-#ifdef __DEEPKS
-
-#include "LCAO_deepks.h"
+#include "LCAO_dftu_new.h"
 #include "module_base/vector3.h"
 #include "module_base/timer.h"
 #include "module_base/constants.h"
@@ -812,5 +810,3 @@ void LCAO_Deepks::check_gdmx(const int nat)
         ofs_z.close();
     }
 }
-
-#endif

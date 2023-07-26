@@ -1,5 +1,4 @@
-#ifdef __DEEPKS
-#include "LCAO_deepks_interface.h"
+#include "LCAO_dftu_new_interface.h"
 
 #include "module_base/global_variable.h"
 #include "module_base/tool_title.h"
@@ -149,5 +148,3 @@ void LCAO_Deepks_Interface::out_deepks_labels(double etot,
                   << " = " << std::setprecision(8) << ld->E_delta * ModuleBase::Ry_to_eV << " eV" << std::endl;
     }
 }
-
-#endif

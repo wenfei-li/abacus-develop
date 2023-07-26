@@ -6,9 +6,7 @@
 //2. check_psialpha, which prints the results into .dat files
 //for checking
 
-#ifdef __DEEPKS
-
-#include "LCAO_deepks.h"
+#include "LCAO_dftu_new.h"
 #include "module_base/vector3.h"
 #include "module_base/timer.h"
 
@@ -269,4 +267,3 @@ void LCAO_Deepks::check_psialpha(const bool& calc_deri,
 	return;
 
 }
-#endif

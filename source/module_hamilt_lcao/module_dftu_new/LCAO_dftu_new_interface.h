@@ -1,8 +1,7 @@
-#ifndef LCAO_DEEPKS_INTERFACE_H
-#define LCAO_DEEPKS_INTERFACE_H
+#ifndef LCAO_DFTU_NEW_INTERFACE_H
+#define LCAO_DFTU_NEW_INTERFACE_H
 
-#ifdef __DEEPKS
-#include "LCAO_deepks.h"
+#include "LCAO_dftu_new.h"
 #include "module_base/complexmatrix.h"
 #include "module_base/matrix.h"
 #include <memory>
@@ -44,5 +43,4 @@ class LCAO_Deepks_Interface
     std::shared_ptr<LCAO_Deepks> ld;
 };
 
-#endif
 #endif

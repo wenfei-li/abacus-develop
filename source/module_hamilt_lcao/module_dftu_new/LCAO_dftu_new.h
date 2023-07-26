@@ -1,16 +1,10 @@
-#ifndef LCAO_DESCRIPTOR_H
-#define LCAO_DESCRIPTOR_H
-
-#ifdef __DEEPKS
+#ifndef LCAO_DFTU_NEW_H
+#define LCAO_DFTU_NEW_H
 
 #include "module_base/intarray.h"
 #include "module_base/complexmatrix.h"
 #include "module_basis/module_ao/ORB_gen_tables.h"
 #include <unordered_map>
-
-#include "torch/script.h"
-#include "torch/csrc/autograd/autograd.h"
-#include "torch/csrc/api/include/torch/linalg.h"
 
 #include "module_cell/module_neighbor/sltk_grid_driver.h"
 #include "module_basis/module_ao/parallel_orbitals.h"
@@ -21,24 +15,21 @@
 #include "module_base/matrix.h"
 #include "module_base/timer.h"
 
-///
-/// The LCAO_Deepks contains subroutines for implementation of the DeePKS method in atomic basis.
-/// In essential, it is a machine-learned correction term to the XC potential
-/// in the form of delta_V=|alpha> V(D) <alpha|, where D is a list of descriptors
-/// The subroutines may be roughly grouped into 3 types
-/// 1. generation of projected density matrices pdm=sum_i,occ <phi_i|alpha><alpha|phi_i>
-///    and then descriptors D=eig(pdm)
-///    as well as their gradients with regard to atomic position, gdmx = d/dX (pdm)
-///    and grad_vx = d/dX (D)
-/// 2. loading the model, which requires interfaces with libtorch
-/// 3. applying the correction potential, delta_V, in Kohn-Sham Hamiltonian and calculation of energy, force, stress
-/// 
-/// For details of DeePKS method, you can refer to [DeePKS paper](https://pubs.acs.org/doi/10.1021/acs.jctc.0c00872).
-///
-///
-// caoyu add 2021-03-29
-// wenfei modified 2022-1-5
-//
+// Wenfei 2023/07/25
+// After noting the form of DeePKS operator is the same as that of DFT+U,
+// I am going to add a mode to use DeePKS as the DFT+U correction term.
+// In fact the only major change I need to make is on cal_gedm, which calculates
+// the correction potential, but of course there will be some minor changes as well.
+// The values of gedm are obtained as the derivative of energy w.r.t. descriptors in DeePKS,
+// while in DFT+U calculated as: (U-J)(1/2-n), where n is the occupation matrix.
+// It should be noted that in DeePKS, the same projectors are used on both sides,
+// corresponding to the so-called 'full' representation of occupation matrix calculation,
+// while the implementation in module_dftu uses the 'dual' representation.
+// Also, two potential perils: 1. DeePKS is applied on every l channel of every atom, so there will be
+// some unnecessary operations in the loop (but can be improved by adding some skipping conditions later)
+// 2. the DeePKS projectors are the same for all atoms. To modify it will be lots of work,
+// so I intend to let it be and see how it goes.
+
 class LCAO_Deepks
 {
 
@@ -160,10 +151,10 @@ private:
 //-------------------
 
 //-------------------
-// LCAO_deepks.cpp
+// LCAO_dftu_new.cpp
 //-------------------
 
-//This file contains constructor and destructor of the class LCAO_deepks, 
+//This file contains constructor and destructor of the class LCAO_dftu_new, 
 //as well as subroutines for initializing and releasing relevant data structures 
 
 //Other than the constructor and the destructor, it contains 3 types of subroutines:
@@ -220,7 +211,7 @@ private:
     void del_orbital_pdm_shell(const int nks);
 
 //-------------------
-// LCAO_deepks_psialpha.cpp
+// LCAO_dftu_new_psialpha.cpp
 //-------------------
 
 //wenfei 2022-1-5
@@ -247,7 +238,7 @@ public:
         const ORB_gen_tables &UOT);
 
 //-------------------
-// LCAO_deepks_pdm.cpp
+// LCAO_dftu_new_pdm.cpp
 //-------------------
 
 //This file contains subroutines for calculating pdm,
@@ -300,7 +291,7 @@ public:
     void check_gdmx(const int nat);
 
 //-------------------
-// LCAO_deepks_vdelta.cpp
+// LCAO_dftu_new_vdelta.cpp
 //-------------------
 
 //This file contains subroutines related to V_delta, which is the deepks contribution to Hamiltonian
@@ -337,7 +328,7 @@ public:
         const int nks);
 
 //-------------------
-// LCAO_deepks_fdelta.cpp
+// LCAO_dftu_new_fdelta.cpp
 //-------------------
 
 //This file contains subroutines for calculating F_delta,
@@ -369,7 +360,7 @@ public:
     void check_f_delta(const int nat, ModuleBase::matrix& svnl_dalpha);
 
 //-------------------
-// LCAO_deepks_odelta.cpp
+// LCAO_dftu_new_odelta.cpp
 //-------------------
 
 //This file contains subroutines for calculating O_delta,
@@ -386,7 +377,7 @@ public:
         const int nks);
 
 //-------------------
-// LCAO_deepks_torch.cpp
+// LCAO_dftu_new_torch.cpp
 //-------------------
 
 //This file contains interfaces with libtorch,
@@ -471,7 +462,7 @@ private:
     void cal_gvdm(const int nat);
 
 //-------------------
-// LCAO_deepks_io.cpp
+// LCAO_dftu_new_io.cpp
 //-------------------
 
 //This file contains subroutines that contains interface with libnpy
@@ -524,7 +515,7 @@ public:
     void save_npy_orbital_precalc(const int nat, const int nks);
 
 //-------------------
-// LCAO_deepks_mpi.cpp
+// LCAO_dftu_new_mpi.cpp
 //-------------------
 
 //This file contains only one subroutine, allsum_deepks
@@ -548,5 +539,4 @@ namespace GlobalC
     extern LCAO_Deepks ld;
 }
 
-#endif
 #endif

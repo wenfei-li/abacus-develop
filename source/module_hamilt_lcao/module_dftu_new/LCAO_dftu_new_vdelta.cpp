@@ -12,9 +12,7 @@
 //5. cal_e_delta_band : calculates e_delta_bands for gamma only
 //6. cal_e_delta_band_k : counterpart of 4, for multi-k
 
-#ifdef __DEEPKS
-
-#include "LCAO_deepks.h"
+#include "LCAO_dftu_new.h"
 #include "module_base/vector3.h"
 #include "module_base/parallel_reduce.h"
 #include "module_base/timer.h"
@@ -438,5 +436,3 @@ void LCAO_Deepks::cal_e_delta_band_k(const std::vector<ModuleBase::ComplexMatrix
 #endif
     return;
 }
-
-#endif

@@ -7,9 +7,7 @@
 //2. cal_f_delta_k, which is used for multi-k calculation
 //3. check_f_delta, which prints F_delta into F_delta.dat for checking
 
-#ifdef __DEEPKS
-
-#include "LCAO_deepks.h"
+#include "LCAO_dftu_new.h"
 #include "module_base/vector3.h"
 #include "module_base/timer.h"
 #include "module_base/constants.h"
@@ -427,5 +425,3 @@ void LCAO_Deepks::check_f_delta(const int nat, ModuleBase::matrix& svnl_dalpha)
     }    
     return;
 }
-
-#endif

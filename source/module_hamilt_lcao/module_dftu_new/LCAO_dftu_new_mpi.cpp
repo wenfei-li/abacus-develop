@@ -2,9 +2,7 @@
 //which is used to perform allsum on a two-level pointer
 //It is used in a few places in the deepks code
 
-#ifdef __DEEPKS
-
-#include "LCAO_deepks.h"
+#include "LCAO_dftu_new.h"
 #include "module_base/parallel_reduce.h"
 
 #ifdef __MPI
@@ -18,6 +16,4 @@ void LCAO_Deepks::allsum_deepks(
         Parallel_Reduce::reduce_double_all(mat[inl],ndim);
     }
 }
-#endif
-
 #endif
