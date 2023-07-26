@@ -188,8 +188,6 @@ public:
 //5. cal_gdmx_k, counterpart of 3, for multi-k
 //6. check_gdmx, which prints gdmx to a series of .dat files
 
-public:
-
     ///calculate projected density matrix:
     ///pdm = sum_i,occ <phi_i|alpha1><alpha2|phi_k>
     void cal_projected_DM(const ModuleBase::matrix& dm/**< [in] density matrix*/,
@@ -221,8 +219,6 @@ public:
 //4. check_v_delta_k : prints H_V_deltaR for checking
 //5. cal_e_delta_band : calculates e_delta_bands for gamma only
 //6. cal_e_delta_band_k : counterpart of 4, for multi-k
-
-public:
 
     ///add dV to the Hamiltonian matrix
     void add_v_delta(const UnitCell &ucell,
@@ -293,8 +289,6 @@ public:
 //8. save_npy_o: orbital
 //9. save_npy_orbital_precalc: orbital_precalc -> orbital_precalc.npy
 
-public:
-  
     ///print density matrices
     void print_dm(const ModuleBase::matrix &dm);
     void print_dm_k(const int nks, const std::vector<ModuleBase::ComplexMatrix>& dm);
@@ -308,8 +302,6 @@ public:
 //It is used in a few places in the deepks code
 
 #ifdef __MPI
-
-public:
     //reduces a dim 2 array
     void allsum_deepks(
         int inlmax, //first dimension
