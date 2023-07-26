@@ -24,7 +24,6 @@ void LCAO_Deepks_Interface::out_deepks_labels(double etot,
 {
     ModuleBase::TITLE("LCAO_Deepks_Interface", "out_deepks_labels");                                                    // end deepks_out_labels
 
-    // DeePKS PDM and descriptor
     if (GlobalV::deepks_scf)
     {
         // this part is for integrated test of deepks

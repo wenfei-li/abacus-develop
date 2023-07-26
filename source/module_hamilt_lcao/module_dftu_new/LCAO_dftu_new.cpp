@@ -7,9 +7,6 @@
 //  - init : allocates some arrays
 //  - init_index : records the index (inl)
 //  - allocate_nlm : allocates data structures (nlm_save) which is used to store <chi|alpha>
-//2. subroutines that are related to calculating force label:
-//  - init_gdmx : allocates gdmx; it is a private subroutine
-//  - del_gdmx : releases gdmx
 //3. subroutines that are related to calculating force label:
 //  - init_gdmepsl : allocates gdm_epsl; it is a private subroutine
 //  - del_gdmepsl : releases gdm_epsl
@@ -75,7 +72,7 @@ void LCAO_Deepks::init(
 {
     ModuleBase::TITLE("LCAO_Deepks", "init");
 
-    GlobalV::ofs_running << " Initialize the descriptor index for DeePKS (lcao line)" << std::endl;
+    GlobalV::ofs_running << " Initialize the projector index for DeePKS (lcao line)" << std::endl;
 
     const int lm = orb.get_lmax_d();
     const int nm = orb.get_nchimax_d();
@@ -90,11 +87,10 @@ void LCAO_Deepks::init(
     this->lmaxd = lm;
     this->nmaxd = nm;
     this->inlmax = tot_inl;
-    GlobalV::ofs_running << " lmax of descriptor = " << this->lmaxd << std::endl;
-    GlobalV::ofs_running << " nmax of descriptor= " << nmaxd << std::endl;
-	GlobalV::ofs_running << " total basis (all atoms) for descriptor= " << std::endl;
+    GlobalV::ofs_running << " lmax of projector = " << this->lmaxd << std::endl;
+    GlobalV::ofs_running << " nmax of projector = " << nmaxd << std::endl;
     
-    //init pdm**
+    //init pdm ***
     const int pdm_size = (this->lmaxd * 2 + 1) * (this->lmaxd * 2 + 1);
     this->pdm = new double** [GlobalV::NSPIN];
     for(int is = 0; is < GlobalV::NSPIN; is ++)
@@ -106,15 +102,6 @@ void LCAO_Deepks::init(
             ModuleBase::GlobalFunc::ZEROS(this->pdm[is][inl], pdm_size);
         }
     }
-
-    // cal n(descriptor) per atom , related to Lmax, nchi(L) and m. (not total_nchi!)
-	this->des_per_atom=0; // mohan add 2021-04-21
-    for (int l = 0; l <= this->lmaxd; l++)
-    {
-        this->des_per_atom += orb.Alpha[0].getNchi(l) * (2 * l + 1);
-    }
-
-    this->n_descriptor = nat * this->des_per_atom;
 
     this->init_index(ntype, nat, na, tot_inl, orb);
     this->allocate_nlm(nat);
@@ -158,8 +145,7 @@ void LCAO_Deepks::init_index(const int ntype, const int nat, std::vector<int> na
         }//end ia
     }//end it
     assert(Total_nchi == inl);
-    GlobalV::ofs_running << " descriptors_per_atom " << this->des_per_atom << std::endl;
-    GlobalV::ofs_running << " total_descriptors " << this->n_descriptor << std::endl;
+
 	return;
 }
 
@@ -174,80 +160,6 @@ void LCAO_Deepks::allocate_nlm(const int nat)
         this->nlm_save_k.resize(nat);
     }
 }
-
-void LCAO_Deepks::init_gdmx(const int nat)
-{
-    this->gdmx = new double** [nat];
-    this->gdmy = new double** [nat];
-    this->gdmz = new double** [nat];
-    for (int iat = 0;iat < nat;iat++)
-    {
-        this->gdmx[iat] = new double* [inlmax];
-        this->gdmy[iat] = new double* [inlmax];
-        this->gdmz[iat] = new double* [inlmax];
-        for (int inl = 0;inl < inlmax;inl++)
-        {
-            this->gdmx[iat][inl] = new double [(2 * lmaxd + 1) * (2 * lmaxd + 1)];
-            this->gdmy[iat][inl] = new double [(2 * lmaxd + 1) * (2 * lmaxd + 1)];
-            this->gdmz[iat][inl] = new double[(2 * lmaxd + 1) * (2 * lmaxd + 1)];
-            ModuleBase::GlobalFunc::ZEROS(gdmx[iat][inl], (2 * lmaxd + 1) * (2 * lmaxd + 1));
-            ModuleBase::GlobalFunc::ZEROS(gdmy[iat][inl], (2 * lmaxd + 1) * (2 * lmaxd + 1));
-            ModuleBase::GlobalFunc::ZEROS(gdmz[iat][inl], (2 * lmaxd + 1) * (2 * lmaxd + 1));
-        }
-    }
-    return;
-}
-
-void LCAO_Deepks::del_gdmx(const int nat)
-{
-    for (int iat = 0;iat < nat;iat++)
-    {
-        for (int inl = 0;inl < inlmax;inl++)
-        {
-            delete[] this->gdmx[iat][inl];
-            delete[] this->gdmy[iat][inl];
-            delete[] this->gdmz[iat][inl];
-        }
-        delete[] this->gdmx[iat];
-        delete[] this->gdmy[iat];
-        delete[] this->gdmz[iat];
-    }
-    delete[] this->gdmx;
-    delete[] this->gdmy;
-    delete[] this->gdmz;
-    return;
-}
-
-void LCAO_Deepks::init_gdmepsl()
-{
-    this->gdm_epsl = new double** [6];
-    
-    for (int ipol = 0;ipol < 6;ipol++)
-    {
-        this->gdm_epsl[ipol] = new double* [inlmax];
-        for (int inl = 0;inl < inlmax;inl++)
-        {
-            this->gdm_epsl[ipol][inl] = new double [(2 * lmaxd + 1) * (2 * lmaxd + 1)];
-            ModuleBase::GlobalFunc::ZEROS(gdm_epsl[ipol][inl], (2 * lmaxd + 1) * (2 * lmaxd + 1));
-        }
-    }
-    return;
-}
-
-void LCAO_Deepks::del_gdmepsl()
-{
-    for (int ipol = 0;ipol < 6;ipol++)
-    {
-        for (int inl = 0;inl < inlmax;inl++)
-        {
-            delete[] this->gdm_epsl[ipol][inl];
-        }
-        delete[] this->gdm_epsl[ipol];
-    }
-    delete[] this->gdm_epsl;
-    return;
-}
-
 
 void LCAO_Deepks::allocate_V_delta(const int nat, const int nks)
 {
@@ -282,12 +194,6 @@ void LCAO_Deepks::allocate_V_delta(const int nat, const int nks)
     {
         //init F_delta
         F_delta.create(nat, 3);
-        if(GlobalV::deepks_out_labels) 
-        { 
-            this->init_gdmx(nat);
-            this->init_gdmepsl();
-        }
-        //gdmx is used only in calculating gvx
     }
 
     if (GlobalV::deepks_bandgap)

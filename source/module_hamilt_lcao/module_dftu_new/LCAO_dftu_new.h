@@ -76,7 +76,7 @@ private:
 	double** gedm;	//[tot_Inl][2l+1][2l+1]
 
 	ModuleBase::IntArray* inl_index;	//caoyu add 2021-05-07
-	int* inl_l;	//inl_l[inl_index] = l of descriptor with inl_index
+	int* inl_l;	//inl_l[inl_index] = l of projector with inl_index
 
     const Parallel_Orbitals* pv;
 
@@ -96,9 +96,6 @@ private:
 //  - init : allocates some arrays
 //  - init_index : records the index (inl)
 //  - allocate_nlm : allocates data structures (nlm_save) which is used to store <chi|alpha>
-//2. subroutines that are related to calculating force label:
-//  - init_gdmx : allocates gdmx; it is a private subroutine
-//  - del_gdmx : releases gdmx
 //3. subroutines that are related to V_delta:
 //  - allocate_V_delta : allocates H_V_delta; if calculating force, it also calls
 //      init_gdmx, as well as allocating F_delta
@@ -109,8 +106,8 @@ public:
     explicit LCAO_Deepks();
     ~LCAO_Deepks();
 
-    ///Allocate memory and calculate the index of descriptor in all atoms. 
-    ///(only for descriptor part, not including scf)
+    ///Allocate memory and calculate the index of projector in all atoms. 
+    ///(only for projector part, not including scf)
     void init(const LCAO_Orbitals &orb,
         const int nat,
         const int ntype,
@@ -121,17 +118,9 @@ public:
     void allocate_V_delta(const int nat, const int nks = 1);
     void allocate_V_deltaR(const int nnr);
 
-    // array for storing gdmx, used for calculating gvx
-	void init_gdmx(const int nat);
-	void del_gdmx(const int nat);
-
-    // array for storing gdm_epsl, used for calculating gvx
-	void init_gdmepsl();
-	void del_gdmepsl();
-
 private:
 
-    // arrange index of descriptor in all atoms
+    // arrange index of projector in all atoms
 	void init_index(const int ntype,
         const int nat,
         std::vector<int> na,
@@ -148,7 +137,7 @@ private:
 //This file contains 2 subroutines:
 //1. build_psialpha, which calculates the overlap
 //between atomic basis and projector alpha : <psi_mu|alpha>
-//which will be used in calculating pdm, gdmx, H_V_delta, F_delta;
+//which will be used in calculating pdm, H_V_delta, F_delta;
 //2. check_psialpha, which prints the results into .dat files
 //for checking
 
@@ -173,20 +162,13 @@ public:
 
 //This file contains subroutines for calculating pdm,
 //which is defind as sum_mu,nu rho_mu,nu (<chi_mu|alpha><alpha|chi_nu>);
-//as well as gdmx, which is the gradient of pdm, defined as
-//sum_mu,nu rho_mu,nu d/dX(<chi_mu|alpha><alpha|chi_nu>)
 
-//It also contains subroutines for printing pdm and gdmx
-//for checking purpose
+//It also contains subroutines for printing pdm for checking purpose
 
 //There are 6 subroutines in this file:
 //1. cal_projected_DM, which is used for calculating pdm for gamma point calculation
 //2. cal_projected_DM_k, counterpart of 1, for multi-k
-//3. check_projected_dm, which prints pdm to descriptor.dat
-
-//4. cal_gdmx, calculating gdmx (and optionally gdm_epsl for stress) for gamma point
-//5. cal_gdmx_k, counterpart of 3, for multi-k
-//6. check_gdmx, which prints gdmx to a series of .dat files
+//3. check_projected_dm, which prints pdm to pdm.dat
 
     ///calculate projected density matrix:
     ///pdm = sum_i,occ <phi_i|alpha1><alpha2|phi_k>
@@ -280,15 +262,6 @@ public:
 //There are 2 subroutines for printing density matrices:
 //1. print_dm : for gamma only
 //2. print_dm_k : for multi-k
-
-//And 6 which prints quantities in .npy format 
-//3. save_npy_d : descriptor ->dm_eig.npy
-//4. save_npy_gvx : gvx ->grad_vx.npy
-//5. save_npy_e : energy
-//6. save_npy_f : force
-//7. save_npy_s : stress
-//8. save_npy_o: orbital
-//9. save_npy_orbital_precalc: orbital_precalc -> orbital_precalc.npy
 
     ///print density matrices
     void print_dm(const ModuleBase::matrix &dm);

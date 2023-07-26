@@ -1,20 +1,13 @@
 //wenfei 2022-1-11
 //This file contains subroutines for calculating pdm,
 //which is defind as sum_mu,nu rho_mu,nu (<chi_mu|alpha><alpha|chi_nu>);
-//as well as gdmx, which is the gradient of pdm, defined as
-//sum_mu,nu rho_mu,nu d/dX(<chi_mu|alpha><alpha|chi_nu>)
 
-//It also contains subroutines for printing pdm and gdmx
-//for checking purpose
+//It also contains subroutines for printing pdm for checking purpose
 
 //There are 6 subroutines in this file:
 //1. cal_projected_DM, which is used for calculating pdm for gamma point calculation
 //2. cal_projected_DM_k, counterpart of 1, for multi-k
-//3. check_projected_dm, which prints pdm to descriptor.dat
-
-//4. cal_gdmx, calculating gdmx (and optionally gdm_epsl for stress) for gamma point
-//5. cal_gdmx_k, counterpart of 3, for multi-k
-//6. check_gdmx, which prints gdmx to a series of .dat files
+//3. check_projected_dm, which prints pdm to pdm.dat
 
 #include "LCAO_dftu_new.h"
 #include "module_base/vector3.h"
