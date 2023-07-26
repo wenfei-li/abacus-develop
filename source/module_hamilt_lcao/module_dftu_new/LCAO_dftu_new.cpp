@@ -44,11 +44,16 @@ LCAO_Deepks::~LCAO_Deepks()
 
     //=======1. to use deepks, pdm is required==========
     //delete pdm**
-    for (int inl = 0;inl < this->inlmax;inl++)
+    for(int is = 0; is < GlobalV::NSPIN; is ++)
     {
-        delete[] pdm[inl];
+        for (int inl = 0;inl < this->inlmax;inl++)
+        {
+            delete[] pdm[is][inl];
+        }
+        delete[] pdm[is];
     }
     delete[] pdm;
+
     //=======2. "deepks_scf" part==========
     if (GlobalV::deepks_scf)
     {
@@ -91,11 +96,15 @@ void LCAO_Deepks::init(
     
     //init pdm**
     const int pdm_size = (this->lmaxd * 2 + 1) * (this->lmaxd * 2 + 1);
-    this->pdm = new double* [this->inlmax];
-    for (int inl = 0;inl < this->inlmax;inl++)
+    this->pdm = new double** [GlobalV::NSPIN];
+    for(int is = 0; is < GlobalV::NSPIN; is ++)
     {
-        this->pdm[inl] = new double[pdm_size];
-        ModuleBase::GlobalFunc::ZEROS(this->pdm[inl], pdm_size);
+        this->pdm[is] = new double* [this->inlmax];
+        for (int inl = 0;inl < this->inlmax;inl++)
+        {
+            this->pdm[is][inl] = new double[pdm_size];
+            ModuleBase::GlobalFunc::ZEROS(this->pdm[is][inl], pdm_size);
+        }
     }
 
     // cal n(descriptor) per atom , related to Lmax, nchi(L) and m. (not total_nchi!)

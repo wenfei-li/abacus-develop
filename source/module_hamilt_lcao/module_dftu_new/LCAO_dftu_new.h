@@ -70,7 +70,7 @@ private:
     std::vector<std::map<key_tuple,std::unordered_map<int,std::vector<std::vector<double>>>>> nlm_save_k;
 
     // projected density matrix
-	double** pdm;	//[tot_Inl][2l+1][2l+1]	caoyu modified 2021-05-07
+	double*** pdm;	//[tot_Inl][2l+1][2l+1]	caoyu modified 2021-05-07
 
 	// +U correction strength
 	double** gedm;	//[tot_Inl][2l+1][2l+1]
@@ -190,7 +190,7 @@ public:
 
     ///calculate projected density matrix:
     ///pdm = sum_i,occ <phi_i|alpha1><alpha2|phi_k>
-    void cal_projected_DM(const ModuleBase::matrix& dm/**< [in] density matrix*/,
+    void cal_projected_DM(const std::vector<ModuleBase::matrix>& dm/**< [in] density matrix*/,
         const UnitCell &ucell,
         const LCAO_Orbitals &orb,
         Grid_Driver& GridD);
@@ -199,6 +199,7 @@ public:
         const LCAO_Orbitals &orb,
         Grid_Driver& GridD,
         const int nks,
+        const int * isk,
         const std::vector<ModuleBase::Vector3<double>> &kvec_d);
     void check_projected_dm(void);
 
