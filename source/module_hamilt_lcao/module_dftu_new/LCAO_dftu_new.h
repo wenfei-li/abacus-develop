@@ -30,7 +30,7 @@
 // 2. the DeePKS projectors are the same for all atoms. To modify it will be lots of work,
 // so I intend to let it be and see how it goes.
 
-class LCAO_Deepks
+class LCAO_DftU_New
 {
 
 //-------------------
@@ -57,7 +57,7 @@ public:
 private:
 
 	int lmaxd = 0; //max l of descirptors
-	int nmaxd = 0; //#. descriptors per l
+	int nmaxd = 0; //#. projectors per l
 	int inlmax = 0; //tot. number {i,n,l} - atom, n, l
 
     bool init_pdm = false; //for DeePKS NSCF calculation
@@ -92,7 +92,7 @@ private:
 //as well as subroutines for initializing and releasing relevant data structures 
 
 //Other than the constructor and the destructor, it contains 3 types of subroutines:
-//1. subroutines that are related to calculating descriptors:
+//1. subroutines that are related to calculating onsite-dm:
 //  - init : allocates some arrays
 //  - init_index : records the index (inl)
 //  - allocate_nlm : allocates data structures (nlm_save) which is used to store <chi|alpha>
@@ -103,8 +103,8 @@ private:
 
 public:
 
-    explicit LCAO_Deepks();
-    ~LCAO_Deepks();
+    explicit LCAO_DftU_New();
+    ~LCAO_DftU_New();
 
     ///Allocate memory and calculate the index of projector in all atoms. 
     ///(only for projector part, not including scf)
@@ -254,10 +254,7 @@ public:
 // LCAO_dftu_new_io.cpp
 //-------------------
 
-//This file contains subroutines that contains interface with libnpy
-//since many arrays must be saved in numpy format
-//It also contains subroutines for printing density matrices
-//which is used in unit tests
+//This file contains subroutines that contains subroutines for printing density matrices
 
 //There are 2 subroutines for printing density matrices:
 //1. print_dm : for gamma only
@@ -287,7 +284,7 @@ public:
 
 namespace GlobalC
 {
-    extern LCAO_Deepks ld;
+    extern LCAO_DftU_New ld;
 }
 
 #endif

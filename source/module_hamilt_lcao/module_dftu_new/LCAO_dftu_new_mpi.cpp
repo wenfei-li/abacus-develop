@@ -6,7 +6,7 @@
 #include "module_base/parallel_reduce.h"
 
 #ifdef __MPI
-void LCAO_Deepks::allsum_deepks(
+void LCAO_DftU_New::allsum_deepks(
     int inlmax, //first dimension
     int ndim, //second dimension
     double** mat) //the array being reduced 

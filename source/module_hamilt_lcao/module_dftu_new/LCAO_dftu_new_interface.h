@@ -6,13 +6,13 @@
 #include "module_base/matrix.h"
 #include <memory>
 
-class LCAO_Deepks_Interface
+class LCAO_DftU_New_Interface
 {
   public:
-    /// @brief Constructor for LCAO_Deepks_Interface
+    /// @brief Constructor for LCAO_DftU_New_Interface
     /// @param ld_in
-    LCAO_Deepks_Interface(std::shared_ptr<LCAO_Deepks> ld_in);
-    /// @brief output deepks-related labels, descriptors and energy corrections
+    LCAO_DftU_New_Interface(std::shared_ptr<LCAO_DftU_New> ld_in);
+    /// @brief output dftu-related labels, and energy corrections
     /// @param[in] etot
     /// @param[in] nks
     /// @param[in] nat
@@ -40,7 +40,7 @@ class LCAO_Deepks_Interface
                            const std::vector<ModuleBase::matrix>& dm_gamma,
                            const std::vector<ModuleBase::ComplexMatrix>& dm_k);
   private:
-    std::shared_ptr<LCAO_Deepks> ld;
+    std::shared_ptr<LCAO_DftU_New> ld;
 };
 
 #endif

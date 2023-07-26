@@ -19,11 +19,11 @@
 
 //this subroutine adds dV to the Kohn-Sham Hamiltonian
 //for gamma_only calculations
-void LCAO_Deepks::add_v_delta(const UnitCell &ucell,
+void LCAO_DftU_New::add_v_delta(const UnitCell &ucell,
     const LCAO_Orbitals &orb,
     Grid_Driver& GridD)
 {
-    ModuleBase::TITLE("LCAO_DESCRIPTOR", "add_v_delta");
+    ModuleBase::TITLE("LCAO_DftU_New", "add_v_delta");
     ModuleBase::timer::tick ("LCAO_gen_fixedH","add_v_delta");
     ModuleBase::GlobalFunc::ZEROS(this->H_V_delta, pv->nrow * pv->ncol); //init before calculate
 
@@ -123,11 +123,11 @@ void LCAO_Deepks::add_v_delta(const UnitCell &ucell,
         }
     }
 
-    ModuleBase::timer::tick ("LCAO_DESCRIPTOR","add_v_delta");
+    ModuleBase::timer::tick ("LCAO_DftU_New","add_v_delta");
 	return;
 }
 
-void LCAO_Deepks::check_v_delta()
+void LCAO_DftU_New::check_v_delta()
 {
 	std::ofstream ofs("H_V_delta.dat");
 	ofs << std::setprecision(10);
@@ -152,13 +152,13 @@ void LCAO_Deepks::check_v_delta()
 
 //this subroutine calculates H_V_deltaR
 //used in multi-k calculations
-void LCAO_Deepks::add_v_delta_k(const UnitCell &ucell,
+void LCAO_DftU_New::add_v_delta_k(const UnitCell &ucell,
     const LCAO_Orbitals &orb,
     Grid_Driver& GridD,
     const int nnr_in)
 {
-    ModuleBase::TITLE("LCAO_DESCRIPTOR", "add_v_delta_k");
-    ModuleBase::timer::tick ("LCAO_DESCRIPTOR","add_v_delta_k");
+    ModuleBase::TITLE("LCAO_DftU_New", "add_v_delta_k");
+    ModuleBase::timer::tick ("LCAO_DftU_New","add_v_delta_k");
     ModuleBase::GlobalFunc::ZEROS(this->H_V_deltaR, nnr_in);
 
     const double Rcut_Alpha = orb.Alpha[0].getRcut();
@@ -350,14 +350,14 @@ void LCAO_Deepks::add_v_delta_k(const UnitCell &ucell,
 
     if( nnr!=nnr_in)
     {
-        ModuleBase::WARNING_QUIT("LCAO_DESCRIPTOR","nnr!=LNNR.nnr");
+        ModuleBase::WARNING_QUIT("LCAO_DftU_New","nnr!=LNNR.nnr");
     }
 
-    ModuleBase::timer::tick ("LCAO_DESCRIPTOR","add_v_delta_k");
+    ModuleBase::timer::tick ("LCAO_DftU_New","add_v_delta_k");
     return;
 }
 
-void LCAO_Deepks::check_v_delta_k(const int nnr)
+void LCAO_DftU_New::check_v_delta_k(const int nnr)
 {
 	std::ofstream ofs("H_V_deltaR.dat");
 	ofs<<std::setprecision(10);
@@ -370,9 +370,9 @@ void LCAO_Deepks::check_v_delta_k(const int nnr)
 
 //calculating sum of correction band energies
 //for gamma_only calculations
-void LCAO_Deepks::cal_e_delta_band(const std::vector<ModuleBase::matrix>& dm)
+void LCAO_DftU_New::cal_e_delta_band(const std::vector<ModuleBase::matrix>& dm)
 {
-    ModuleBase::TITLE("LCAO_Deepks", "cal_e_delta_band");
+    ModuleBase::TITLE("LCAO_DftU_New", "cal_e_delta_band");
     this->e_delta_band = 0;
     for (int i = 0; i < GlobalV::NLOCAL; ++i)
     {
@@ -399,10 +399,10 @@ void LCAO_Deepks::cal_e_delta_band(const std::vector<ModuleBase::matrix>& dm)
 
 //calculating sum of correction band energies
 //for multi_k calculations
-void LCAO_Deepks::cal_e_delta_band_k(const std::vector<ModuleBase::ComplexMatrix>& dm,
+void LCAO_DftU_New::cal_e_delta_band_k(const std::vector<ModuleBase::ComplexMatrix>& dm,
     const int nks)
 {
-    ModuleBase::TITLE("LCAO_Deepks", "cal_e_delta_band");
+    ModuleBase::TITLE("LCAO_DftU_New", "cal_e_delta_band");
     std::complex<double> e_delta_band_k=std::complex<double>(0.0,0.0);
     for (int i = 0; i < GlobalV::NLOCAL; ++i)
     {

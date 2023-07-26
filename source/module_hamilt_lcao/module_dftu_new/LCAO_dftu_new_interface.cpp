@@ -4,11 +4,11 @@
 #include "module_base/tool_title.h"
 #include "module_elecstate/cal_dm.h"
 
-LCAO_Deepks_Interface::LCAO_Deepks_Interface(std::shared_ptr<LCAO_Deepks> ld_in) : ld(ld_in)
+LCAO_DftU_New_Interface::LCAO_DftU_New_Interface(std::shared_ptr<LCAO_DftU_New> ld_in) : ld(ld_in)
 {
 }
 
-void LCAO_Deepks_Interface::out_deepks_labels(double etot,
+void LCAO_DftU_New_Interface::out_deepks_labels(double etot,
                                               int nks,
                                               int nat,
                                               const ModuleBase::matrix& ekb,
@@ -22,7 +22,7 @@ void LCAO_Deepks_Interface::out_deepks_labels(double etot,
                                               const std::vector<ModuleBase::matrix>& dm_gamma,
                                               const std::vector<ModuleBase::ComplexMatrix>& dm_k)
 {
-    ModuleBase::TITLE("LCAO_Deepks_Interface", "out_deepks_labels");                                                    // end deepks_out_labels
+    ModuleBase::TITLE("LCAO_DftU_New_Interface", "out_deepks_labels");                                                    // end deepks_out_labels
 
     if (GlobalV::deepks_scf)
     {

@@ -10,14 +10,14 @@
 #include "module_base/vector3.h"
 #include "module_base/timer.h"
 
-void LCAO_Deepks::build_psialpha(const bool& calc_deri,
+void LCAO_DftU_New::build_psialpha(const bool& calc_deri,
     const UnitCell &ucell,
     const LCAO_Orbitals &orb,
     Grid_Driver& GridD,
     const ORB_gen_tables &UOT)
 {
-    ModuleBase::TITLE("LCAO_Deepks", "build_psialpha");
-    ModuleBase::timer::tick ("LCAO_Deepks","build_psialpha");
+    ModuleBase::TITLE("LCAO_DftU_New", "build_psialpha");
+    ModuleBase::timer::tick ("LCAO_DftU_New","build_psialpha");
 
     //cutoff for alpha is same for all types of atoms
     const double Rcut_Alpha = orb.Alpha[0].getRcut();
@@ -119,19 +119,19 @@ void LCAO_Deepks::build_psialpha(const bool& calc_deri,
 		}//end I0
 	}//end T0
 
-    ModuleBase::timer::tick ("LCAO_Deepks","build_psialpha");
+    ModuleBase::timer::tick ("LCAO_DftU_New","build_psialpha");
 	return;
 
 }
 
-void LCAO_Deepks::check_psialpha(const bool& calc_deri,
+void LCAO_DftU_New::check_psialpha(const bool& calc_deri,
     const UnitCell &ucell,
     const LCAO_Orbitals &orb,
     Grid_Driver& GridD,
     const ORB_gen_tables &UOT)
 {
-    ModuleBase::TITLE("LCAO_Deepks", "check_psialpha");
-    ModuleBase::timer::tick ("LCAO_Deepks","check_psialpha");
+    ModuleBase::TITLE("LCAO_DftU_New", "check_psialpha");
+    ModuleBase::timer::tick ("LCAO_DftU_New","check_psialpha");
 
     const double Rcut_Alpha = orb.Alpha[0].getRcut();
     //same for all types of atoms
@@ -263,7 +263,7 @@ void LCAO_Deepks::check_psialpha(const bool& calc_deri,
 		}//end I0
 	}//end T0
 
-    ModuleBase::timer::tick ("LCAO_Deepks","check_psialpha");
+    ModuleBase::timer::tick ("LCAO_DftU_New","check_psialpha");
 	return;
 
 }

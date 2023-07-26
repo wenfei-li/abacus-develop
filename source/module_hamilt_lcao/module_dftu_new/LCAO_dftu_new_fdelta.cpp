@@ -32,13 +32,13 @@ void stress_fill(
 
 //force for gamma only calculations
 //Pulay and HF terms are calculated together
-void LCAO_Deepks::cal_f_delta_gamma(const ModuleBase::matrix& dm,
+void LCAO_DftU_New::cal_f_delta_gamma(const ModuleBase::matrix& dm,
     const UnitCell &ucell,
     const LCAO_Orbitals &orb,
     Grid_Driver& GridD,
     const bool isstress, ModuleBase::matrix& svnl_dalpha)
 {
-    ModuleBase::TITLE("LCAO_Deepks", "cal_f_delta_gamma");
+    ModuleBase::TITLE("LCAO_DftU_New", "cal_f_delta_gamma");
     this->F_delta.zero_out();
 
     const double Rcut_Alpha = orb.Alpha[0].getRcut();
@@ -208,7 +208,7 @@ void LCAO_Deepks::cal_f_delta_gamma(const ModuleBase::matrix& dm,
 //force for multi-k calculations
 //Pulay and HF terms are calculated together
 
-void LCAO_Deepks::cal_f_delta_k(const std::vector<ModuleBase::ComplexMatrix>& dm/**<[in] density matrix*/,
+void LCAO_DftU_New::cal_f_delta_k(const std::vector<ModuleBase::ComplexMatrix>& dm/**<[in] density matrix*/,
     const UnitCell &ucell,
     const LCAO_Orbitals &orb,
     Grid_Driver& GridD,
@@ -216,8 +216,8 @@ void LCAO_Deepks::cal_f_delta_k(const std::vector<ModuleBase::ComplexMatrix>& dm
     const std::vector<ModuleBase::Vector3<double>> &kvec_d,
     const bool isstress, ModuleBase::matrix& svnl_dalpha)
 {
-    ModuleBase::TITLE("LCAO_Deepks", "cal_f_delta_hf_k_new");
-    ModuleBase::timer::tick("LCAO_Deepks","cal_f_delta_hf_k_new");
+    ModuleBase::TITLE("LCAO_DftU_New", "cal_f_delta_hf_k_new");
+    ModuleBase::timer::tick("LCAO_DftU_New","cal_f_delta_hf_k_new");
     this->F_delta.zero_out();
 
     const double Rcut_Alpha = orb.Alpha[0].getRcut();
@@ -396,14 +396,14 @@ void LCAO_Deepks::cal_f_delta_k(const std::vector<ModuleBase::ComplexMatrix>& dm
     {
         stress_fill(ucell.lat0, ucell.omega, svnl_dalpha);
     }
-    ModuleBase::timer::tick("LCAO_Deepks","cal_f_delta_hf_k_new");
+    ModuleBase::timer::tick("LCAO_DftU_New","cal_f_delta_hf_k_new");
     return;
 }
 
 //prints F_delta into F_delta.dat
-void LCAO_Deepks::check_f_delta(const int nat, ModuleBase::matrix& svnl_dalpha)
+void LCAO_DftU_New::check_f_delta(const int nat, ModuleBase::matrix& svnl_dalpha)
 {
-    ModuleBase::TITLE("LCAO_Deepks", "check_F_delta");
+    ModuleBase::TITLE("LCAO_DftU_New", "check_F_delta");
 
     std::ofstream ofs("F_delta.dat");
     ofs<<std::setprecision(10);

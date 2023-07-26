@@ -16,13 +16,13 @@
 
 //this subroutine performs the calculation of projected density matrices
 //pdm_m,m'=\sum_{mu,nu} rho_{mu,nu} <chi_mu|alpha_m><alpha_m'|chi_nu>
-void LCAO_Deepks::cal_projected_DM(const std::vector<ModuleBase::matrix> &dm, 
+void LCAO_DftU_New::cal_projected_DM(const std::vector<ModuleBase::matrix> &dm, 
     const UnitCell &ucell,
     const LCAO_Orbitals &orb,
     Grid_Driver& GridD)
 {
-    ModuleBase::TITLE("LCAO_Deepks", "cal_projected_DM");
-    ModuleBase::timer::tick("LCAO_Deepks","cal_projected_DM");
+    ModuleBase::TITLE("LCAO_DftU_New", "cal_projected_DM");
+    ModuleBase::timer::tick("LCAO_DftU_New","cal_projected_DM");
 
     const int pdm_size = (this->lmaxd * 2 + 1) * (this->lmaxd * 2 + 1);
     if (GlobalV::init_chg == "file" && !this->init_pdm) //for DeePKS NSCF calculation 
@@ -30,7 +30,7 @@ void LCAO_Deepks::cal_projected_DM(const std::vector<ModuleBase::matrix> &dm,
         std::ifstream ifs("pdm.dat");
         if (!ifs)
         {
-            ModuleBase::WARNING_QUIT("LCAO_Deepks::cal_projected_DM", "Can not find the file pdm.dat . Please do DeePKS SCF calculation first.");
+            ModuleBase::WARNING_QUIT("LCAO_DftU_New::cal_projected_DM", "Can not find the file pdm.dat . Please do DeePKS SCF calculation first.");
         }
         for(int is = 0; is < GlobalV::NSPIN; ++is)
         {
@@ -154,11 +154,11 @@ void LCAO_Deepks::cal_projected_DM(const std::vector<ModuleBase::matrix> &dm,
         allsum_deepks(this->inlmax,pdm_size,this->pdm[is]);
     }
 #endif
-    ModuleBase::timer::tick("LCAO_Deepks","cal_projected_DM"); 
+    ModuleBase::timer::tick("LCAO_DftU_New","cal_projected_DM"); 
     return;
 }
 
-void LCAO_Deepks::cal_projected_DM_k(const std::vector<ModuleBase::ComplexMatrix>& dm,
+void LCAO_DftU_New::cal_projected_DM_k(const std::vector<ModuleBase::ComplexMatrix>& dm,
     const UnitCell &ucell,
     const LCAO_Orbitals &orb,
     Grid_Driver& GridD,
@@ -173,7 +173,7 @@ void LCAO_Deepks::cal_projected_DM_k(const std::vector<ModuleBase::ComplexMatrix
         std::ifstream ifs("pdm.dat");
         if (!ifs)
         {
-            ModuleBase::WARNING_QUIT("LCAO_Deepks::cal_projected_DM_k","Can not find the file pdm.dat . Please do DeePKS SCF calculation first.");
+            ModuleBase::WARNING_QUIT("LCAO_DftU_New::cal_projected_DM_k","Can not find the file pdm.dat . Please do DeePKS SCF calculation first.");
         }
         for(int inl=0;inl<this->inlmax;inl++)
         {
@@ -191,10 +191,10 @@ void LCAO_Deepks::cal_projected_DM_k(const std::vector<ModuleBase::ComplexMatrix
     //check for skipping
     if(dm[0].nr == 0 && dm[0].nc ==0)
     {
-        ModuleBase::timer::tick("LCAO_Deepks","cal_projected_DM_k");
+        ModuleBase::timer::tick("LCAO_DftU_New","cal_projected_DM_k");
         return;
     }
-    ModuleBase::timer::tick("LCAO_Deepks","cal_projected_DM_k");
+    ModuleBase::timer::tick("LCAO_DftU_New","cal_projected_DM_k");
 
     for(int is = 0; is < GlobalV::NSPIN; is ++)
     {
@@ -319,12 +319,12 @@ void LCAO_Deepks::cal_projected_DM_k(const std::vector<ModuleBase::ComplexMatrix
         allsum_deepks(this->inlmax,pdm_size,this->pdm[is]);
     }
 #endif
-    ModuleBase::timer::tick("LCAO_Deepks","cal_projected_DM_k");
+    ModuleBase::timer::tick("LCAO_DftU_New","cal_projected_DM_k");
     return;
     
 }
 
-void LCAO_Deepks::check_projected_dm(void)
+void LCAO_DftU_New::check_projected_dm(void)
 {
     std::ofstream ofs("pdm.dat");
     const int pdm_size = (this->lmaxd * 2 + 1) * (this->lmaxd * 2 + 1);

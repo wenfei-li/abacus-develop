@@ -3,13 +3,10 @@
 //as well as subroutines for initializing and releasing relevant data structures 
 
 //Other than the constructor and the destructor, it contains 3 types of subroutines:
-//1. subroutines that are related to calculating descriptors:
+//1. subroutines that are related to calculating onsite dm:
 //  - init : allocates some arrays
 //  - init_index : records the index (inl)
 //  - allocate_nlm : allocates data structures (nlm_save) which is used to store <chi|alpha>
-//3. subroutines that are related to calculating force label:
-//  - init_gdmepsl : allocates gdm_epsl; it is a private subroutine
-//  - del_gdmepsl : releases gdm_epsl
 //4. subroutines that are related to V_delta:
 //  - allocate_V_delta : allocates H_V_delta; if calculating force, it also calls
 //      init_gdmx, as well as allocating F_delta
@@ -20,11 +17,11 @@
 
 namespace GlobalC
 {
-    LCAO_Deepks ld;
+    LCAO_DftU_New ld;
 }
 
 //Constructor of the class
-LCAO_Deepks::LCAO_Deepks()
+LCAO_DftU_New::LCAO_DftU_New()
 {
     inl_index = new ModuleBase::IntArray[1];
     inl_l = nullptr;
@@ -33,7 +30,7 @@ LCAO_Deepks::LCAO_Deepks()
 }
 
 //Desctructor of the class
-LCAO_Deepks::~LCAO_Deepks()
+LCAO_DftU_New::~LCAO_DftU_New()
 {
     delete[] inl_index;
     delete[] inl_l;
@@ -63,14 +60,14 @@ LCAO_Deepks::~LCAO_Deepks()
     }
 }
 
-void LCAO_Deepks::init(
+void LCAO_DftU_New::init(
     const LCAO_Orbitals& orb,
     const int nat,
     const int ntype,
     const Parallel_Orbitals& pv_in,
     std::vector<int> na)
 {
-    ModuleBase::TITLE("LCAO_Deepks", "init");
+    ModuleBase::TITLE("LCAO_DftU_New", "init");
 
     GlobalV::ofs_running << " Initialize the projector index for DeePKS (lcao line)" << std::endl;
 
@@ -111,7 +108,7 @@ void LCAO_Deepks::init(
     return;
 }
 
-void LCAO_Deepks::init_index(const int ntype, const int nat, std::vector<int> na, const int Total_nchi, const LCAO_Orbitals &orb)
+void LCAO_DftU_New::init_index(const int ntype, const int nat, std::vector<int> na, const int Total_nchi, const LCAO_Orbitals &orb)
 {
     delete[] this->inl_index;
     this->inl_index = new ModuleBase::IntArray[ntype];
@@ -149,7 +146,7 @@ void LCAO_Deepks::init_index(const int ntype, const int nat, std::vector<int> na
 	return;
 }
 
-void LCAO_Deepks::allocate_nlm(const int nat)
+void LCAO_DftU_New::allocate_nlm(const int nat)
 {
     if(GlobalV::GAMMA_ONLY_LOCAL)
     {
@@ -161,9 +158,9 @@ void LCAO_Deepks::allocate_nlm(const int nat)
     }
 }
 
-void LCAO_Deepks::allocate_V_delta(const int nat, const int nks)
+void LCAO_DftU_New::allocate_V_delta(const int nat, const int nks)
 {
-    ModuleBase::TITLE("LCAO_Deepks", "allocate_V_delta");
+    ModuleBase::TITLE("LCAO_DftU_New", "allocate_V_delta");
 
     //initialize the H matrix H_V_delta
     if(GlobalV::GAMMA_ONLY_LOCAL)
@@ -206,16 +203,16 @@ void LCAO_Deepks::allocate_V_delta(const int nat, const int nks)
     return;
 }
 
-void LCAO_Deepks::allocate_V_deltaR(const int nnr)
+void LCAO_DftU_New::allocate_V_deltaR(const int nnr)
 {
-    ModuleBase::TITLE("LCAO_Deepks", "allocate_V_deltaR");
+    ModuleBase::TITLE("LCAO_DftU_New", "allocate_V_deltaR");
     GlobalV::ofs_running << nnr << std::endl;
     delete[] H_V_deltaR;
     H_V_deltaR = new double[nnr];
     ModuleBase::GlobalFunc::ZEROS(H_V_deltaR, nnr);
 }
 
-void LCAO_Deepks::init_orbital_pdm_shell(const int nks)
+void LCAO_DftU_New::init_orbital_pdm_shell(const int nks)
 {
     
     this->orbital_pdm_shell = new double*** [nks];
@@ -239,7 +236,7 @@ void LCAO_Deepks::init_orbital_pdm_shell(const int nks)
 }
 
 
-void LCAO_Deepks::del_orbital_pdm_shell(const int nks)
+void LCAO_DftU_New::del_orbital_pdm_shell(const int nks)
 {
     for (int iks=0; iks<nks; iks++)
     {
