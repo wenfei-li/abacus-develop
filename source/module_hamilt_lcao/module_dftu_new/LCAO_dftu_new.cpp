@@ -29,7 +29,6 @@ namespace GlobalC
 //Constructor of the class
 LCAO_Deepks::LCAO_Deepks()
 {
-    alpha_index = new ModuleBase::IntArray[1];
     inl_index = new ModuleBase::IntArray[1];
     inl_l = nullptr;
     H_V_delta = nullptr;
@@ -39,7 +38,6 @@ LCAO_Deepks::LCAO_Deepks()
 //Desctructor of the class
 LCAO_Deepks::~LCAO_Deepks()
 {
-    delete[] alpha_index;
     delete[] inl_index;
     delete[] inl_l;
     delete[] H_V_delta;
@@ -119,8 +117,6 @@ void LCAO_Deepks::init(
 
 void LCAO_Deepks::init_index(const int ntype, const int nat, std::vector<int> na, const int Total_nchi, const LCAO_Orbitals &orb)
 {
-    delete[] this->alpha_index;
-    this->alpha_index = new ModuleBase::IntArray[ntype];
     delete[] this->inl_index;
     this->inl_index = new ModuleBase::IntArray[ntype];
     delete[] this->inl_l;
@@ -131,12 +127,6 @@ void LCAO_Deepks::init_index(const int ntype, const int nat, std::vector<int> na
     int alpha = 0;
     for (int it = 0; it < ntype; it++)
     {
-        this->alpha_index[it].create(
-            na[it],
-            this->lmaxd + 1, // l starts from 0
-            this->nmaxd,
-            2 * this->lmaxd + 1); // m ==> 2*l+1
-
         this->inl_index[it].create(
             na[it],
             this->lmaxd + 1,
@@ -147,16 +137,10 @@ void LCAO_Deepks::init_index(const int ntype, const int nat, std::vector<int> na
 
         for (int ia = 0; ia < na[it]; ia++)
         {
-            //alpha
             for (int l = 0; l < this->lmaxd + 1; l++)
             {
                 for (int n = 0; n < orb.Alpha[0].getNchi(l); n++)
                 {
-                    for (int m = 0; m < 2 * l + 1; m++)
-                    {
-                        this->alpha_index[it](ia, l, n, m) = alpha;
-                        alpha++;
-                    }
                     this->inl_index[it](ia, l, n) = inl;
                     this->inl_l[inl] = l;
                     inl++;
@@ -164,7 +148,6 @@ void LCAO_Deepks::init_index(const int ntype, const int nat, std::vector<int> na
             }
         }//end ia
     }//end it
-    assert(this->n_descriptor == alpha);
     assert(Total_nchi == inl);
     GlobalV::ofs_running << " descriptors_per_atom " << this->des_per_atom << std::endl;
     GlobalV::ofs_running << " total_descriptors " << this->n_descriptor << std::endl;

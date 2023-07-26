@@ -42,10 +42,6 @@ public:
     double E_delta = 0.0;
     ///(Unit: Ry)  \f$tr(\rho H_\delta), \rho = \sum_i{c_{i, \mu}c_{i,\nu}} \f$ (for gamma_only)
     double e_delta_band = 0.0;
-    
-    ///(Unit: Ry)  \f$tr(\rho_{HL} H_\delta), 
-    ///\rho_{HL} = c_{L, \mu}c_{L,\nu} - c_{H, \mu}c_{H,\nu} \f$ (for gamma_only)
-    ModuleBase::matrix	o_delta;
 
     ///Correction term to the Hamiltonian matrix: \f$\langle\psi|V_\delta|\psi\rangle\f$ (for gamma only)
     double* H_V_delta;
@@ -54,19 +50,6 @@ public:
     double* H_V_deltaR;
     ///In k space:
     std::complex<double>** H_V_delta_k;
-
-    ///(Unit: Ry/Bohr) Total Force due to the DeePKS correction term \f$E_{\delta}\f$
-    ModuleBase::matrix	F_delta;
-
-    //k index of HOMO for multi-k bandgap label. QO added 2022-01-24
-    int h_ind = 0;
-    
-    //k index of LUMO for multi-k bandgap label. QO added 2022-01-24
-    int l_ind = 0;
-
-    //functions for hr status: 1. get value; 2. set value;
-    int get_hr_cal(){ return this->hr_cal; }
-    void set_hr_cal(bool cal){ this->hr_cal = cal; }
 
 //-------------------
 // private variables
@@ -78,10 +61,6 @@ private:
 	int inlmax = 0; //tot. number {i,n,l} - atom, n, l
 
     bool init_pdm = false; //for DeePKS NSCF calculation
-    
-	// deep neural network module that provides corrected Hamiltonian term and
-	// related derivatives.
-	torch::jit::script::Module module;
 
     // saves <psi(0)|alpha(R)>, for gamma only
     std::vector<std::vector<std::unordered_map<int,std::vector<std::vector<double>>>>> nlm_save;
@@ -92,59 +71,14 @@ private:
 
     // projected density matrix
 	double** pdm;	//[tot_Inl][2l+1][2l+1]	caoyu modified 2021-05-07
-	std::vector<torch::Tensor> pdm_tensor;
 
-	// descriptors
-	std::vector<torch::Tensor> d_tensor;
-
-	//gedm:dE/dD, [tot_Inl][2l+1][2l+1]	(E: Hartree)
-	std::vector<torch::Tensor> gedm_tensor;
-
-	//gdmx: dD/dX		\sum_{mu,nu} 2*c_mu*c_nu * <dpsi_mu/dx|alpha_m><alpha_m'|psi_nu>
-	double*** gdmx;	//[natom][tot_Inl][2l+1][2l+1]
-	double*** gdmy;
-	double*** gdmz;
-
-    //gdm_epsl: dD/d\epsilon_{\alpha\beta}
-    double*** gdm_epsl; //[6][tot_Inl][2l+1][2l+1] 
-
-    //dD/d\epsilon_{\alpha\beta}, tensor form of gdm_epsl
-    std::vector<torch::Tensor> gdmepsl_vector;
-
-    //gv_epsl:d(d)/d\epsilon_{\alpha\beta}, [natom][6][des_per_atom]
-    torch::Tensor gvepsl_tensor;
-
-	///dE/dD, autograd from loaded model(E: Ry)
+	// +U correction strength
 	double** gedm;	//[tot_Inl][2l+1][2l+1]
 
-    //gvx:d(d)/dX, [natom][3][natom][des_per_atom]
-    torch::Tensor gvx_tensor;
-
-    //d(d)/dD, autograd from torch::linalg::eigh
-    std::vector<torch::Tensor> gevdm_vector;
-
-    //dD/dX, tensor form of gdmx
-    std::vector<torch::Tensor> gdmr_vector;
-
-    //orbital_pdm_shell:[1,Inl,nm*nm]; \langle \phi_\mu|\alpha\rangle\langle\alpha|\phi_\nu\rnalge
-    double**** orbital_pdm_shell;
-    //orbital_precalc:[1,NAt,NDscrpt]; gvdm*orbital_pdm_shell
-    torch::Tensor orbital_precalc_tensor;
-
-    ///size of descriptor(projector) basis set
-    int n_descriptor;
-
-	// \sum_L{Nchi(L)*(2L+1)}
-	int des_per_atom;
-
-	ModuleBase::IntArray* alpha_index;
 	ModuleBase::IntArray* inl_index;	//caoyu add 2021-05-07
 	int* inl_l;	//inl_l[inl_index] = l of descriptor with inl_index
 
-    // HR status, 
-    // true : HR should be calculated
-    // false : HR has been calculated
-    bool hr_cal = true;
+    const Parallel_Orbitals* pv;
 
 //-------------------
 // subroutines, grouped according to the file they are in:
@@ -205,10 +139,6 @@ private:
         const LCAO_Orbitals &orb);
     // data structure that saves <psi|alpha>
     void allocate_nlm(const int nat);
-
-    //for bandgap label calculation; QO added on 2022-1-7
-    void init_orbital_pdm_shell(const int nks);
-    void del_orbital_pdm_shell(const int nks);
 
 //-------------------
 // LCAO_dftu_new_psialpha.cpp
@@ -274,22 +204,6 @@ public:
         const std::vector<ModuleBase::Vector3<double>> &kvec_d);
     void check_projected_dm(void);
 
-    //calculate the gradient of pdm with regard to atomic positions
-    //d/dX D_{Inl,mm'}
-    void cal_gdmx(const ModuleBase::matrix& dm,
-        const UnitCell &ucell,
-        const LCAO_Orbitals &orb,
-        Grid_Driver& GridD,
-        const bool isstress);
-    void cal_gdmx_k(const std::vector<ModuleBase::ComplexMatrix>& dm,
-        const UnitCell &ucell,
-        const LCAO_Orbitals &orb,
-        Grid_Driver& GridD,
-        const int nks,
-        const std::vector<ModuleBase::Vector3<double>> &kvec_d,
-        const bool isstress);
-    void check_gdmx(const int nat);
-
 //-------------------
 // LCAO_dftu_new_vdelta.cpp
 //-------------------
@@ -339,8 +253,6 @@ public:
 //2. cal_f_delta_k, which is used for multi-k calculation
 //3. check_f_delta, which prints F_delta into F_delta.dat for checking
 
-public:
-
     //for gamma only, pulay and HF terms of force are calculated together
     void cal_f_delta_gamma(const ModuleBase::matrix& dm/**< [in] density matrix*/,
         const UnitCell &ucell,
@@ -358,108 +270,6 @@ public:
         const bool isstress, ModuleBase::matrix& svnl_dalpha);
 
     void check_f_delta(const int nat, ModuleBase::matrix& svnl_dalpha);
-
-//-------------------
-// LCAO_dftu_new_odelta.cpp
-//-------------------
-
-//This file contains subroutines for calculating O_delta,
-//which corresponds to the correction of the band gap. 
-
-//There are two subroutines in this file:
-//1. cal_o_delta, which is used for gamma point calculation
-//2. cal_o_delta_k, which is used for multi-k calculation
-
-public:
-    
-    void cal_o_delta(const std::vector<std::vector<ModuleBase::matrix>>& dm_hl/**<[in] modified density matrix that contains HOMO and LUMO only*/);
-    void cal_o_delta_k(const std::vector<std::vector<ModuleBase::ComplexMatrix>>& dm_hl/**<[in] modified density matrix that contains HOMO and LUMO only*/,
-        const int nks);
-
-//-------------------
-// LCAO_dftu_new_torch.cpp
-//-------------------
-
-//This file contains interfaces with libtorch,
-//including loading of model and calculating gradients
-//as well as subroutines that prints the results for checking
-
-//The file contains 8 subroutines:
-//1. cal_descriptor : obtains descriptors which are eigenvalues of pdm
-//      by calling torch::linalg::eigh
-//2. check_descriptor : prints descriptor for checking
-//3. cal_gvx : gvx is used for training with force label, which is gradient of descriptors, 
-//      calculated by d(des)/dX = d(pdm)/dX * d(des)/d(pdm) = gdmx * gvdm
-//      using einsum
-//4. check_gvx : prints gvx into gvx.dat for checking
-//5. cal_gvepsl : gvepsl is used for training with stress label, which is derivative of 
-//      descriptors wrt strain tensor, calculated by 
-//      d(des)/d\epsilon_{ab} = d(pdm)/d\epsilon_{ab} * d(des)/d(pdm) = gdm_epsl * gvdm
-//      using einsum
-//6. cal_gvdm : d(des)/d(pdm)
-//      calculated using torch::autograd::grad
-//7. load_model : loads model for applying V_delta
-//8. cal_gedm : calculates d(E_delta)/d(pdm)
-//      this is the term V(D) that enters the expression H_V_delta = |alpha>V(D)<alpha|
-//      caculated using torch::autograd::grad
-//9. check_gedm : prints gedm for checking
-//10. cal_orbital_precalc : orbital_precalc is usted for training with orbital label, 
-//                         which equals gvdm * orbital_pdm_shell, 
-//                         orbital_pdm_shell[1,Inl,nm*nm] = dm_hl * overlap * overlap
-//11. cal_orbital_precalc_k : orbital_precalc is usted for training with orbital label, 
-//                         for multi-k case, which equals gvdm * orbital_pdm_shell, 
-//                         orbital_pdm_shell[1,Inl,nm*nm] = dm_hl_k * overlap * overlap
-
-public:
-
-    ///Calculates descriptors
-    ///which are eigenvalues of pdm in blocks of I_n_l
-	void cal_descriptor(void);
-    ///print descriptors based on LCAO basis
-    void check_descriptor(const UnitCell &ucell);
-
-    ///calculates gradient of descriptors w.r.t atomic positions
-    ///----------------------------------------------------
-    ///m, n: 2*l+1
-    ///v: eigenvalues of dm , 2*l+1
-    ///a,b: natom 
-    /// - (a: the center of descriptor orbitals
-    /// - b: the atoms whose force being calculated)
-    ///gvdm*gdmx->gvx
-    ///----------------------------------------------------
-    void cal_gvx(const int nat);
-    void check_gvx(const int nat);
-
-    //for stress
-    void cal_gvepsl(const int nat);
-
-    //load the trained neural network model
-    void load_model(const std::string& model_file);
-
-    ///calculate partial of energy correction to descriptors
-    void cal_gedm(const int nat);
-    void check_gedm(void);
-
-    //calculates orbital_precalc
-    void cal_orbital_precalc(const std::vector<std::vector<ModuleBase::matrix>>& dm_hl/**<[in] density matrix*/,
-        const int nat,
-        const UnitCell &ucell,
-        const LCAO_Orbitals &orb,
-        Grid_Driver& GridD);
-    
-    //calculates orbital_precalc for multi-k case
-    void cal_orbital_precalc_k(const std::vector<std::vector<ModuleBase::ComplexMatrix>>& dm_hl/**<[in] density matrix*/,
-        const int nat,
-        const int nks,
-        const std::vector<ModuleBase::Vector3<double>> &kvec_d,
-        const UnitCell &ucell,
-        const LCAO_Orbitals &orb,
-        Grid_Driver& GridD);
-
-
-private:
-    const Parallel_Orbitals* pv;
-    void cal_gvdm(const int nat);
 
 //-------------------
 // LCAO_dftu_new_io.cpp
@@ -488,31 +298,6 @@ public:
     ///print density matrices
     void print_dm(const ModuleBase::matrix &dm);
     void print_dm_k(const int nks, const std::vector<ModuleBase::ComplexMatrix>& dm);
-
-	///----------------------------------------------------------------------
-	///The following 4 functions save the `[dm_eig], [e_base], [f_base], [grad_vx]`
-	///of current configuration as `.npy` file, when `deepks_scf = 1`.
-	///After a full group of consfigurations are calculated,
-    ///we need a python script to `load` and `torch.cat` these `.npy` files,
-    ///and get `l_e_delta,npy` and `l_f_delta.npy` corresponding to the exact E, F data.
-    /// 
-    /// Unit of energy: Ry
-    ///
-    /// Unit of force: Ry/Bohr
-    ///----------------------------------------------------------------------
-	void save_npy_d(const int nat);
-	void save_npy_e(const double &e/**<[in] \f$E_{base}\f$ or \f$E_{tot}\f$, in Ry*/,const std::string &e_file);
-	void save_npy_f(const ModuleBase::matrix &fbase/**<[in] \f$F_{base}\f$ or \f$F_{tot}\f$, in Ry/Bohr*/,
-        const std::string &f_file, const int nat);
-
-    void save_npy_s(const ModuleBase::matrix &sbase/**<[in] \f$S_{base}\f$ or \f$S_{tot}\f$, in Ry/Bohr^3*/,
-        const std::string &s_file, const double omega);
-    void save_npy_gvx(const int nat);
-    void save_npy_gvepsl(const int nat);
-
-    //QO added on 2021-12-15
-    void save_npy_o(const ModuleBase::matrix &bandgap/**<[in] \f$E_{base}\f$ or \f$E_{tot}\f$, in Ry*/, const std::string &o_file, const int nks);
-    void save_npy_orbital_precalc(const int nat, const int nks);
 
 //-------------------
 // LCAO_dftu_new_mpi.cpp
