@@ -80,6 +80,13 @@ private:
 
     const Parallel_Orbitals* pv;
 
+    // size : natom, records whether an atom has U term applied
+    std::vector<bool> if_has_u;
+
+    // size : natom * nl, saves the u value
+    // 0 means no u is applied on that l channel of that atom
+    std::vector<std::vector<double>> uvalue;
+
 //-------------------
 // subroutines, grouped according to the file they are in:
 //-------------------
@@ -112,7 +119,8 @@ public:
         const int nat,
         const int ntype,
         const Parallel_Orbitals& pv_in,
-        std::vector<int> na);
+        std::vector<int> na,
+        std::vector<std::vector<double>> & uvalue_in);
 
     ///Allocate memory for correction to Hamiltonian
     void allocate_V_delta(const int nat, const int nks = 1);

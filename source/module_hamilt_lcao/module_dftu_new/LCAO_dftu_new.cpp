@@ -57,10 +57,13 @@ void LCAO_DftU_New::init(
     const int nat,
     const int ntype,
     const Parallel_Orbitals& pv_in,
-    std::vector<int> na)
+    std::vector<int> na,
+    std::vector<std::vector<double>> & uvalue_in)
 {
     ModuleBase::TITLE("LCAO_DftU_New", "init");
 
+    // I am not so fond of the way this part is done, but it suffices for now
+    
     GlobalV::ofs_running << " Initialize the projector index for DeePKS (lcao line)" << std::endl;
 
     const int lm = orb.get_lmax_d();
@@ -96,6 +99,33 @@ void LCAO_DftU_New::init(
     this->allocate_nlm(nat);
 
     this->pv = &pv_in;
+
+    if_has_u.resize(nat);
+    uvalue.resize(nat);
+    for(int iat = 0; iat < nat ; iat ++)
+    {
+        uvalue[iat].resize(lm+1);
+        ModuleBase::GlobalFunc::ZEROS(uvalue[iat], lm+1);
+    }
+
+    int iat = 0;
+    for(int it = 0; it < ntyp; it ++)
+    {
+        for(int ia = 0; ia < na[it]; ia ++)
+        {
+            bool u_applied = false;
+            for(int il = 0; il < uvalue_in[it].size(); il ++)
+            {
+                if(std::abs(uvalue_in[it][il]) > 1e-8)
+                {
+                    u_applied = true;
+                    uvalue[iat][il] = uvalue_in[it][il];
+                }
+            }
+            if_has_u[iat] = u_applied;
+            iat ++;
+        }
+    }
 
     return;
 }
@@ -180,7 +210,7 @@ void LCAO_DftU_New::allocate_V_delta(const int nat, const int nks)
         for (int inl = 0;inl < this->inlmax;inl++)
         {
             this->gedm[is][inl] = new double[pdm_size];
-            ModuleBase::GlobalFunc::ZEROS(this->gedm[inl], pdm_size);
+            ModuleBase::GlobalFunc::ZEROS(this->gedm[is][inl], pdm_size);
         }
     }
     if (GlobalV::CAL_FORCE)

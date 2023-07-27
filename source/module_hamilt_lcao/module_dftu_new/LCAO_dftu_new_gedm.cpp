@@ -5,7 +5,49 @@ void LCAO_DftU_New::cal_gedm(const int nat)
     ModuleBase::TITLE("LCAO_DftU_New", "cal_gedm");
     ModuleBase::timer::tick ("LCAO_DftU_New","cal_gedm");
 
+    for(int is = 0; is < GlobalV::NSPIN; is ++)
+    {
+        for (int inl = 0;inl < this->inlmax;inl++)
+        {
+            ModuleBase::GlobalFunc::ZEROS(this->gedm[is][inl], pdm_size);
+        }
+    }
 
+    for(int iat = 0; iat < nat; iat ++)
+    {
+        if(!if_has_u[iat]) continue;
+        for(int is = 0; is < GlobalV::NSPIN; is ++)
+        {
+            for(int inl = 0; inl < this->inlmax; inl ++)
+            {
+                const int l = this->inl_l[inl];
+                if(std::abs(uvalue[iat][l]) < 1e-8) continue;
+
+                double noccup = 0.0;
+                for(int m1 = 0; m1 < 2*l+1; m1 ++)
+                {
+                    int ind = m1 * (2*l+1) + m1;
+                    noccup += this->pdm[is][inl][ind];
+                }
+
+                for(int m1 = 0; m1 < 2*l+1; m1 ++)
+                {
+                    for(int m2 = 0; m2 < 2*l+1; m2 ++)
+                    {
+                        int ind = m1 * (2*l+1) + m2;
+                        if(m1 == m2)
+                        {
+                            this->gedm[is][inl][ind] = uvalue[iat][l] * (0.5 - occup);
+                        }
+                        else
+                        {
+                            this->gedm[is][inl][ind] = uvalue[iat][l] * (- occup);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     ModuleBase::timer::tick ("LCAO_DftU_New","cal_gedm");
 }
