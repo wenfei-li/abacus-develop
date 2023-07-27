@@ -85,37 +85,40 @@ void LCAO_DftU_New::add_v_delta(const UnitCell &ucell,
                             std::vector<double> nlm2 = this->nlm_save[iat][ad2][iw2_all][0];
 
                             assert(nlm1.size()==nlm2.size());
-                            int ib=0;
-                            for (int L0 = 0; L0 <= orb.Alpha[0].getLmax();++L0)
-                            {
-                                for (int N0 = 0;N0 < orb.Alpha[0].getNchi(L0);++N0)
-                                {
-                                    const int inl = this->inl_index[T0](I0, L0, N0);
-                                    const int nm = 2*L0+1;
-                                    for (int m1 = 0;m1 < 2 * L0 + 1;++m1)
-                                    {
-                                        for (int m2 = 0; m2 < 2 * L0 + 1; ++m2)
-                                        {
-                                            nlm += this->gedm[inl][m1*nm+m2]*nlm1[ib+m1]*nlm2[ib+m2];
-                                        }
-                                    }
-                                    ib+=nm;
-                                }
-                            }
+							for(int is = 0; is < GlobalV::NSPIN; is ++)
+							{
+								int ib=0;
+								for (int L0 = 0; L0 <= orb.Alpha[0].getLmax();++L0)
+								{
+									for (int N0 = 0;N0 < orb.Alpha[0].getNchi(L0);++N0)
+									{
+										const int inl = this->inl_index[T0](I0, L0, N0);
+										const int nm = 2*L0+1;
+										for (int m1 = 0;m1 < 2 * L0 + 1;++m1)
+										{
+											for (int m2 = 0; m2 < 2 * L0 + 1; ++m2)
+											{
+												nlm += this->gedm[is][inl][m1*nm+m2]*nlm1[ib+m1]*nlm2[ib+m2];
+											}
+										}
+										ib+=nm;
+									}
+								}
 
-                            assert(ib==nlm1.size());
-                            
-                            int iic;
+								assert(ib==nlm1.size());
+								
+								int iic;
 
-                            if (ModuleBase::GlobalFunc::IS_COLUMN_MAJOR_KS_SOLVER())
-                            {
-                                iic = iw1_local + iw2_local * pv->nrow;
-                            }
-                            else
-                            {
-                                iic = iw1_local * pv->ncol + iw2_local;
-                            }
-                            this->H_V_delta[iic] += nlm;
+								if (ModuleBase::GlobalFunc::IS_COLUMN_MAJOR_KS_SOLVER())
+								{
+									iic = iw1_local + iw2_local * pv->nrow;
+								}
+								else
+								{
+									iic = iw1_local * pv->ncol + iw2_local;
+								}
+								this->H_V_delta[is][iic] += nlm;
+							}
 						}//iw2
 					}//iw1
 				}//ad2
@@ -296,28 +299,30 @@ void LCAO_DftU_New::add_v_delta_k(const UnitCell &ucell,
                                 std::vector<double> nlm1 = this->nlm_save_k[iat][key_1][iw1_all][0];
                                 std::vector<double> nlm2 = this->nlm_save_k[iat][key_2][iw2_all][0];
                                 assert(nlm1.size()==nlm2.size());
+								for(int is = 0; is < GlobalV::NSPIN; is ++)
+								{
+									int ib=0;
+									double nlm = 0.0;
+									for (int L0 = 0; L0 <= orb.Alpha[0].getLmax();++L0)
+									{
+										for (int N0 = 0;N0 < orb.Alpha[0].getNchi(L0);++N0)
+										{
+											const int inl = this->inl_index[T0](I0, L0, N0);
+											const int nm = 2*L0+1;
+											for (int m1 = 0;m1 < 2 * L0 + 1;++m1)
+											{
+												for (int m2 = 0; m2 < 2 * L0 + 1; ++m2)
+												{
+													nlm += this->gedm[is][inl][m1*nm+m2]*nlm1[ib+m1]*nlm2[ib+m2];
+												}
+											}
+											ib+=(2*L0+1);
+										}
+									}
+									assert(ib==nlm1.size());
 
-                                int ib=0;
-                                double nlm = 0.0;
-                                for (int L0 = 0; L0 <= orb.Alpha[0].getLmax();++L0)
-                                {
-                                    for (int N0 = 0;N0 < orb.Alpha[0].getNchi(L0);++N0)
-                                    {
-                                        const int inl = this->inl_index[T0](I0, L0, N0);
-                                        const int nm = 2*L0+1;
-                                        for (int m1 = 0;m1 < 2 * L0 + 1;++m1)
-                                        {
-                                            for (int m2 = 0; m2 < 2 * L0 + 1; ++m2)
-                                            {
-                                                nlm += this->gedm[inl][m1*nm+m2]*nlm1[ib+m1]*nlm2[ib+m2];
-                                            }
-                                        }
-                                        ib+=(2*L0+1);
-                                    }
-                                }
-                                assert(ib==nlm1.size());
-
-                                this->H_V_deltaR[nnr+nnr_inner] += nlm;
+									this->H_V_deltaR[is][nnr+nnr_inner] += nlm;
+								}
                                 nnr_inner++;
                             }//iw2
                         }//iw1

@@ -25,8 +25,9 @@ LCAO_DftU_New::LCAO_DftU_New()
 {
     inl_index = new ModuleBase::IntArray[1];
     inl_l = nullptr;
-    H_V_delta = nullptr;
-    H_V_deltaR = nullptr;
+
+    allocated_H = false;
+    allocated_HR = false;
 }
 
 //Desctructor of the class
@@ -34,7 +35,34 @@ LCAO_DftU_New::~LCAO_DftU_New()
 {
     delete[] inl_index;
     delete[] inl_l;
-    delete[] H_V_delta;
+    if(allocated_H)
+    {
+        if(GlobalV::GAMMA_ONLY_LOCAL)
+        {
+            for(int is = 0; is < GlobalV::NSPIN; is ++)
+            {
+                delete[] H_V_delta[is];
+            }
+            delete[] H_V_delta;
+        }
+        else
+        {
+            for(int ik=0;ik<nks;ik++)
+            {
+                delete[] this->H_V_delta_k[ik];
+            }
+            delete[] H_V_delta_k;
+        }
+    }
+
+    if(allocated_HR)
+    {
+        for(int is = 0; is < GlobalV::NSPIN; is ++)
+        {
+            delete[] H_V_deltaR[is];
+        }
+        delete[] H_V_deltaR;
+}
 
     //=======1. to use deepks, pdm is required==========
     //delete pdm**
@@ -180,25 +208,34 @@ void LCAO_DftU_New::allocate_nlm(const int nat)
     }
 }
 
-void LCAO_DftU_New::allocate_V_delta(const int nat, const int nks)
+void LCAO_DftU_New::allocate_V_delta(const int nat, const int nks_in)
 {
     ModuleBase::TITLE("LCAO_DftU_New", "allocate_V_delta");
 
+    nks = nks_in;
+
     //initialize the H matrix H_V_delta
-    if(GlobalV::GAMMA_ONLY_LOCAL)
+    if(!allocated_H)
     {
-        delete[] this->H_V_delta;
-        this->H_V_delta = new double[pv->nloc];
-        ModuleBase::GlobalFunc::ZEROS(this->H_V_delta, pv->nloc);
-    }
-    else
-    {
-        H_V_delta_k = new std::complex<double>* [nks];
-        for(int ik=0;ik<nks;ik++)
+        if(GlobalV::GAMMA_ONLY_LOCAL)
         {
-            this->H_V_delta_k[ik] = new std::complex<double>[pv->nloc];
-            ModuleBase::GlobalFunc::ZEROS(this->H_V_delta_k[ik], pv->nloc);
+            this->H_V_delta = new double* [GlobalV::NSPIN];
+            for(int is = 0; is < GlobalV::NSPIN; is ++)
+            {
+                H_V_delta[is] = new double[pv->nloc];
+                ModuleBase::GlobalFunc::ZEROS(this->H_V_delta[is], pv->nloc);
+            }
         }
+        else
+        {
+            H_V_delta_k = new std::complex<double>* [nks];
+            for(int ik=0;ik<nks;ik++)
+            {
+                this->H_V_delta_k[ik] = new std::complex<double>[pv->nloc];
+                ModuleBase::GlobalFunc::ZEROS(this->H_V_delta_k[ik], pv->nloc);
+            }
+        }
+        allocated_H = true;
     }
 
     //init gedm**
@@ -219,21 +256,20 @@ void LCAO_DftU_New::allocate_V_delta(const int nat, const int nks)
         F_delta.create(nat, 3);
     }
 
-    if (GlobalV::deepks_bandgap)
-    {
-        //init o_delta
-        o_delta.create(nks, 1);
-        
-    }
-
     return;
 }
 
 void LCAO_DftU_New::allocate_V_deltaR(const int nnr)
 {
     ModuleBase::TITLE("LCAO_DftU_New", "allocate_V_deltaR");
-    GlobalV::ofs_running << nnr << std::endl;
-    delete[] H_V_deltaR;
-    H_V_deltaR = new double[nnr];
-    ModuleBase::GlobalFunc::ZEROS(H_V_deltaR, nnr);
+    if(!allocated_HR)
+    {
+        H_V_deltaR = new double* [GlobalV::NSPIN];
+        for(int is = 0; is < GlobalV::NSPIN; is ++)
+        {
+            H_V_deltaR[is] = new double[nnr];
+            ModuleBase::GlobalFunc::ZEROS(H_V_deltaR[is], nnr);
+        }
+        allocated_HR = true;
+    }
 }

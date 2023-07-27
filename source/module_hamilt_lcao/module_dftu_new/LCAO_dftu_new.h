@@ -44,10 +44,10 @@ public:
     double e_delta_band = 0.0;
 
     ///Correction term to the Hamiltonian matrix: \f$\langle\psi|V_\delta|\psi\rangle\f$ (for gamma only)
-    double* H_V_delta;
+    double** H_V_delta;
     ///Correction term to Hamiltonian, for multi-k
     ///In R space:
-    double* H_V_deltaR;
+    double** H_V_deltaR;
     ///In k space:
     std::complex<double>** H_V_delta_k;
 
@@ -55,6 +55,11 @@ public:
 // private variables
 //-------------------
 private:
+
+    bool allocated_H = false;
+    bool allocated_HR = false;
+
+    int nks;
 
 	int lmaxd = 0; //max l of descirptors
 	int nmaxd = 0; //#. projectors per l
@@ -123,7 +128,7 @@ public:
         std::vector<std::vector<double>> & uvalue_in);
 
     ///Allocate memory for correction to Hamiltonian
-    void allocate_V_delta(const int nat, const int nks = 1);
+    void allocate_V_delta(const int nat, const int nks_in = 1);
     void allocate_V_deltaR(const int nnr);
 
 private:
