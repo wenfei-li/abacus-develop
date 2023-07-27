@@ -32,7 +32,7 @@ void stress_fill(
 
 //force for gamma only calculations
 //Pulay and HF terms are calculated together
-void LCAO_DftU_New::cal_f_delta_gamma(const ModuleBase::matrix& dm,
+void LCAO_DftU_New::cal_f_delta_gamma(const std::vector<ModuleBase::matrix>& dm,
     const UnitCell &ucell,
     const LCAO_Orbitals &orb,
     Grid_Driver& GridD,
@@ -118,48 +118,8 @@ void LCAO_DftU_New::cal_f_delta_gamma(const ModuleBase::matrix& dm,
 
                             assert(nlm1.size()==nlm2[0].size());
 
-                            int ib=0;
-                            for (int L0 = 0; L0 <= orb.Alpha[0].getLmax();++L0)
+                            for(int is = 0; is < GlobalV::NSPIN; is ++)
                             {
-                                for (int N0 = 0;N0 < orb.Alpha[0].getNchi(L0);++N0)
-                                {
-                                    const int inl = this->inl_index[T0](I0, L0, N0);
-                                    const int nm = 2*L0+1;
-                                    for (int m1 = 0;m1 < nm; ++m1)
-                                    {
-                                        for (int m2 = 0; m2 < nm; ++m2)
-                                        {
-                                            for(int dim=0;dim<3;dim++)
-                                            {                                            
-                                                nlm[dim] += this->gedm[inl][m1*nm+m2]*nlm1[ib+m1]*nlm2[dim][ib+m2];
-                                            }
-                                        }
-                                    }
-                                    ib+=nm;
-                                }
-                            }
-                            assert(ib==nlm1.size());
-
-                            // HF term is minus, only one projector for each atom force.
-                            this->F_delta(iat, 0) -= 2 * dm(iw1_local, iw2_local) * nlm[0];
-                            this->F_delta(iat, 1) -= 2 * dm(iw1_local, iw2_local) * nlm[1];
-                            this->F_delta(iat, 2) -= 2 * dm(iw1_local, iw2_local) * nlm[2];
-
-                            // Pulay term is plus, only one projector for each atom force.
-                            this->F_delta(ibt, 0) += 2 * dm(iw1_local, iw2_local) * nlm[0];
-                            this->F_delta(ibt, 1) += 2 * dm(iw1_local, iw2_local) * nlm[1];
-                            this->F_delta(ibt, 2) += 2 * dm(iw1_local, iw2_local) * nlm[2];
-
-                            if(isstress)
-                            {
-                                nlm1 = this->nlm_save[iat][ad2][iw2_all][0];
-                                for(int i=0;i<3;i++)
-                                {
-                                    nlm2[i] = this->nlm_save[iat][ad1][iw1_all][i+1];
-                                }
-
-                                assert(nlm1.size()==nlm2[0].size());                                
-
                                 int ib=0;
                                 for (int L0 = 0; L0 <= orb.Alpha[0].getLmax();++L0)
                                 {
@@ -173,7 +133,7 @@ void LCAO_DftU_New::cal_f_delta_gamma(const ModuleBase::matrix& dm,
                                             {
                                                 for(int dim=0;dim<3;dim++)
                                                 {                                            
-                                                    nlm_t[dim] += this->gedm[inl][m1*nm+m2]*nlm1[ib+m1]*nlm2[dim][ib+m2];
+                                                    nlm[dim] += this->gedm[is][inl][m1*nm+m2]*nlm1[ib+m1]*nlm2[dim][ib+m2];
                                                 }
                                             }
                                         }
@@ -182,11 +142,57 @@ void LCAO_DftU_New::cal_f_delta_gamma(const ModuleBase::matrix& dm,
                                 }
                                 assert(ib==nlm1.size());
 
-                                for(int ipol=0;ipol<3;ipol++)
+                                // HF term is minus, only one projector for each atom force.
+                                this->F_delta(iat, 0) -= 2 * dm[is](iw1_local, iw2_local) * nlm[0];
+                                this->F_delta(iat, 1) -= 2 * dm[is](iw1_local, iw2_local) * nlm[1];
+                                this->F_delta(iat, 2) -= 2 * dm[is](iw1_local, iw2_local) * nlm[2];
+
+                                // Pulay term is plus, only one projector for each atom force.
+                                this->F_delta(ibt, 0) += 2 * dm[is](iw1_local, iw2_local) * nlm[0];
+                                this->F_delta(ibt, 1) += 2 * dm[is](iw1_local, iw2_local) * nlm[1];
+                                this->F_delta(ibt, 2) += 2 * dm[is](iw1_local, iw2_local) * nlm[2];
+                            }
+
+                            if(isstress)
+                            {
+                                nlm1 = this->nlm_save[iat][ad2][iw2_all][0];
+                                for(int i=0;i<3;i++)
                                 {
-                                    for(int jpol=ipol;jpol<3;jpol++)
+                                    nlm2[i] = this->nlm_save[iat][ad1][iw1_all][i+1];
+                                }
+
+                                assert(nlm1.size()==nlm2[0].size());                                
+
+                                for(int is = 0; is < GlobalV::NSPIN; is ++)
+                                {
+                                    int ib=0;
+                                    for (int L0 = 0; L0 <= orb.Alpha[0].getLmax();++L0)
                                     {
-                                        svnl_dalpha(ipol, jpol) += dm(iw1_local, iw2_local) * (nlm[jpol] * r0[ipol] + nlm_t[jpol] * r1[ipol]);
+                                        for (int N0 = 0;N0 < orb.Alpha[0].getNchi(L0);++N0)
+                                        {
+                                            const int inl = this->inl_index[T0](I0, L0, N0);
+                                            const int nm = 2*L0+1;
+                                            for (int m1 = 0;m1 < nm; ++m1)
+                                            {
+                                                for (int m2 = 0; m2 < nm; ++m2)
+                                                {
+                                                    for(int dim=0;dim<3;dim++)
+                                                    {                                            
+                                                        nlm_t[dim] += this->gedm[is][inl][m1*nm+m2]*nlm1[ib+m1]*nlm2[dim][ib+m2];
+                                                    }
+                                                }
+                                            }
+                                            ib+=nm;
+                                        }
+                                    }
+                                    assert(ib==nlm1.size());
+
+                                    for(int ipol=0;ipol<3;ipol++)
+                                    {
+                                        for(int jpol=ipol;jpol<3;jpol++)
+                                        {
+                                            svnl_dalpha(ipol, jpol) += dm[is](iw1_local, iw2_local) * (nlm[jpol] * r0[ipol] + nlm_t[jpol] * r1[ipol]);
+                                        }
                                     }
                                 }
                             }
@@ -213,6 +219,7 @@ void LCAO_DftU_New::cal_f_delta_k(const std::vector<ModuleBase::ComplexMatrix>& 
     const LCAO_Orbitals &orb,
     Grid_Driver& GridD,
     const int nks,
+    const int * isk,
     const std::vector<ModuleBase::Vector3<double>> &kvec_d,
     const bool isstress, ModuleBase::matrix& svnl_dalpha)
 {
@@ -289,15 +296,25 @@ void LCAO_DftU_New::cal_f_delta_k(const std::vector<ModuleBase::ComplexMatrix>& 
                             const int iw2_all = start2 + iw2;
                             const int iw2_local = pv->global2local_row(iw2_all);
                             if(iw2_local < 0)continue;
-                            double dm_current;
-                            std::complex<double> tmp = 0.0;
+                            std::vector<double> dm_current;
+                            dm_current.resize(GlobalV::NSPIN);
+                            std::vector<std::complex<double>> tmp;
+                            tmp.resize(GlobalV::NSPIN);
+                            for(int is = 0; is < GlobalV::NSPIN; is ++)
+                            {
+                                tmp[is]=0.0;
+                            }
                             for(int ik=0;ik<nks;ik++)
                             {
                                 const double arg = - ( kvec_d[ik] * (dR2-dR1) ) * ModuleBase::TWO_PI;
                                 const std::complex<double> kphase = std::complex <double> ( cos(arg),  sin(arg) );
-                                tmp += dm[ik](iw1_local, iw2_local) * kphase;
+                                const int is = isk[ik];
+                                tmp[is] += dm[ik](iw1_local, iw2_local) * kphase;
                             }
-                            dm_current=tmp.real();
+                            for(int is = 0; is < GlobalV::NSPIN; is ++)
+                            {
+                                dm_current[is]=tmp[is].real();
+                            }
 
                             double nlm[3]={0,0,0};
                             double nlm_t[3] = {0,0,0}; //for stress
@@ -313,48 +330,8 @@ void LCAO_DftU_New::cal_f_delta_k(const std::vector<ModuleBase::ComplexMatrix>& 
 
                             assert(nlm1.size()==nlm2[0].size());
 
-                            int ib=0;
-                            for (int L0 = 0; L0 <= orb.Alpha[0].getLmax();++L0)
+                            for(int is = 0; is < GlobalV::NSPIN; is ++)
                             {
-                                for (int N0 = 0;N0 < orb.Alpha[0].getNchi(L0);++N0)
-                                {
-                                    const int inl = this->inl_index[T0](I0, L0, N0);
-                                    const int nm = 2*L0+1;
-                                    for (int m1 = 0;m1 < nm; ++m1)
-                                    {
-                                        for (int m2 = 0; m2 < nm; ++m2)
-                                        {
-                                            for(int dim=0;dim<3;dim++)
-                                            {                                            
-                                                nlm[dim] += this->gedm[inl][m1*nm+m2]*nlm1[ib+m1]*nlm2[dim][ib+m2];
-                                            }
-                                        }
-                                    }
-                                    ib+=nm;
-                                }
-                            }
-                            assert(ib==nlm1.size());
-
-                            // Pulay term is plus
-                            this->F_delta(ibt2, 0) += 2.0 * dm_current * nlm[0];
-                            this->F_delta(ibt2, 1) += 2.0 * dm_current * nlm[1];
-                            this->F_delta(ibt2, 2) += 2.0 * dm_current * nlm[2];
-
-                            // HF term is minus, only one projector for each atom force.
-                            this->F_delta(iat, 0) -= 2.0 * dm_current * nlm[0];
-                            this->F_delta(iat, 1) -= 2.0 * dm_current * nlm[1];
-                            this->F_delta(iat, 2) -= 2.0 * dm_current * nlm[2];
-
-                            if(isstress)
-                            {
-                                nlm1 = this->nlm_save_k[iat][key_2][iw2_all][0];
-                                for(int i=0;i<3;i++)
-                                {
-                                    nlm2[i] = this->nlm_save_k[iat][key_1][iw1_all][i+1];
-                                }
-
-                                assert(nlm1.size()==nlm2[0].size());                                
-
                                 int ib=0;
                                 for (int L0 = 0; L0 <= orb.Alpha[0].getLmax();++L0)
                                 {
@@ -368,7 +345,7 @@ void LCAO_DftU_New::cal_f_delta_k(const std::vector<ModuleBase::ComplexMatrix>& 
                                             {
                                                 for(int dim=0;dim<3;dim++)
                                                 {                                            
-                                                    nlm_t[dim] += this->gedm[inl][m1*nm+m2]*nlm1[ib+m1]*nlm2[dim][ib+m2];
+                                                    nlm[dim] += this->gedm[is][inl][m1*nm+m2]*nlm1[ib+m1]*nlm2[dim][ib+m2];
                                                 }
                                             }
                                         }
@@ -376,14 +353,59 @@ void LCAO_DftU_New::cal_f_delta_k(const std::vector<ModuleBase::ComplexMatrix>& 
                                     }
                                 }
                                 assert(ib==nlm1.size());
-                                   
-                                for(int ipol=0;ipol<3;ipol++)
+
+                                // Pulay term is plus
+                                this->F_delta(ibt2, 0) += 2.0 * dm_current[is] * nlm[0];
+                                this->F_delta(ibt2, 1) += 2.0 * dm_current[is] * nlm[1];
+                                this->F_delta(ibt2, 2) += 2.0 * dm_current[is] * nlm[2];
+
+                                // HF term is minus, only one projector for each atom force.
+                                this->F_delta(iat, 0) -= 2.0 * dm_current[is] * nlm[0];
+                                this->F_delta(iat, 1) -= 2.0 * dm_current[is] * nlm[1];
+                                this->F_delta(iat, 2) -= 2.0 * dm_current[is] * nlm[2];
+                            }
+
+                            if(isstress)
+                            {
+                                nlm1 = this->nlm_save_k[iat][key_2][iw2_all][0];
+                                for(int i=0;i<3;i++)
                                 {
-                                    svnl_dalpha(0,ipol) -= dm_current * (nlm[0] * r0[ipol] + nlm_t[0] * r1[ipol])* -1.0;
-                                    svnl_dalpha(1,ipol) -= dm_current * (nlm[1] * r0[ipol] + nlm_t[1] * r1[ipol])* -1.0;
-                                    svnl_dalpha(2,ipol) -= dm_current * (nlm[2] * r0[ipol] + nlm_t[2] * r1[ipol])* -1.0;
+                                    nlm2[i] = this->nlm_save_k[iat][key_1][iw1_all][i+1];
                                 }
 
+                                assert(nlm1.size()==nlm2[0].size());                                
+
+                                for(int is = 0; is < GlobalV::NSPIN; is ++)
+                                {
+                                    int ib=0;
+                                    for (int L0 = 0; L0 <= orb.Alpha[0].getLmax();++L0)
+                                    {
+                                        for (int N0 = 0;N0 < orb.Alpha[0].getNchi(L0);++N0)
+                                        {
+                                            const int inl = this->inl_index[T0](I0, L0, N0);
+                                            const int nm = 2*L0+1;
+                                            for (int m1 = 0;m1 < nm; ++m1)
+                                            {
+                                                for (int m2 = 0; m2 < nm; ++m2)
+                                                {
+                                                    for(int dim=0;dim<3;dim++)
+                                                    {                                            
+                                                        nlm_t[dim] += this->gedm[is][inl][m1*nm+m2]*nlm1[ib+m1]*nlm2[dim][ib+m2];
+                                                    }
+                                                }
+                                            }
+                                            ib+=nm;
+                                        }
+                                    }
+                                    assert(ib==nlm1.size());
+                                    
+                                    for(int ipol=0;ipol<3;ipol++)
+                                    {
+                                        svnl_dalpha(0,ipol) -= dm_current[is] * (nlm[0] * r0[ipol] + nlm_t[0] * r1[ipol])* -1.0;
+                                        svnl_dalpha(1,ipol) -= dm_current[is] * (nlm[1] * r0[ipol] + nlm_t[1] * r1[ipol])* -1.0;
+                                        svnl_dalpha(2,ipol) -= dm_current[is] * (nlm[2] * r0[ipol] + nlm_t[2] * r1[ipol])* -1.0;
+                                    }
+                                }
                             }
                         }//iw2
                     }//iw1

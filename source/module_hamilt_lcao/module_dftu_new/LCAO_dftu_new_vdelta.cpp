@@ -391,7 +391,7 @@ void LCAO_DftU_New::cal_e_delta_band(const std::vector<ModuleBase::matrix>& dm)
                 const int index = nu * pv->nrow + mu;
                 for (int is = 0; is < dm.size(); ++is)  //dm.size() == GlobalV::NSPIN
                 {
-                    this->e_delta_band += dm[is](nu, mu) * this->H_V_delta[index];
+                    this->e_delta_band += dm[is](nu, mu) * this->H_V_delta[is][index];
                 }
             }
         }

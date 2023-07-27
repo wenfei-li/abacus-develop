@@ -28,6 +28,7 @@ class LCAO_DftU_New_Interface
     /// @param[in] dm_k
     void out_deepks_labels(double etot,
                            int nks,
+                           int * isk,
                            int nat,
                            const ModuleBase::matrix& ekb,
                            const std::vector<ModuleBase::Vector3<double>>& kvec_d,

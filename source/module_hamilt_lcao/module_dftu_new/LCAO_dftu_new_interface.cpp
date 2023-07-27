@@ -10,6 +10,7 @@ LCAO_DftU_New_Interface::LCAO_DftU_New_Interface(std::shared_ptr<LCAO_DftU_New> 
 
 void LCAO_DftU_New_Interface::out_deepks_labels(double etot,
                                               int nks,
+                                              int * isk,
                                               int nat,
                                               const ModuleBase::matrix& ekb,
                                               const std::vector<ModuleBase::Vector3<double>>& kvec_d,
@@ -32,7 +33,7 @@ void LCAO_DftU_New_Interface::out_deepks_labels(double etot,
     }
     else
     {
-        ld->cal_projected_DM_k(dm_k, ucell, orb, GridD, nks, kvec_d);
+        ld->cal_projected_DM_k(dm_k, ucell, orb, GridD, nks, isk, kvec_d);
     }
     ld->check_projected_dm(); // print out the projected dm for NSCF calculaiton
 

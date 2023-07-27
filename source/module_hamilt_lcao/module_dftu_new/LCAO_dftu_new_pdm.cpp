@@ -175,16 +175,19 @@ void LCAO_DftU_New::cal_projected_DM_k(const std::vector<ModuleBase::ComplexMatr
         {
             ModuleBase::WARNING_QUIT("LCAO_DftU_New::cal_projected_DM_k","Can not find the file pdm.dat . Please do DeePKS SCF calculation first.");
         }
-        for(int inl=0;inl<this->inlmax;inl++)
+        for(int is = 0; is < GlobalV::NSPIN; is ++)
         {
-            for(int ind=0;ind<pdm_size;ind++)
+            for(int inl=0;inl<this->inlmax;inl++)
             {
-                double c;
-			    ifs >> c;
-                pdm[inl][ind] = c;
+                for(int ind=0;ind<pdm_size;ind++)
+                {
+                    double c;
+                    ifs >> c;
+                    pdm[is][inl][ind] = c;
+                }
             }
+            this->init_pdm = true;
         }
-        this->init_pdm = true;
         return;
     }
 
@@ -264,8 +267,12 @@ void LCAO_DftU_New::cal_projected_DM_k(const std::vector<ModuleBase::ComplexMatr
  
                             std::vector<double> dm_current;
                             dm_current.resize(GlobalV::NSPIN);
-                            std::vector<std::complex<double>> tmp = 0.0;
+                            std::vector<std::complex<double>> tmp;
                             tmp.resize(GlobalV::NSPIN);
+                            for(int is = 0; is < GlobalV::NSPIN; is ++)
+                            {
+                                tmp[is]=0.0;
+                            }
                             for(int ik=0;ik<nks;ik++)
                             {
                                 const double arg = ( kvec_d[ik] * (dR1-dR2) ) * ModuleBase::TWO_PI;

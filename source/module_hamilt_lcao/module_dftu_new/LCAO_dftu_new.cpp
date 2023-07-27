@@ -133,11 +133,11 @@ void LCAO_DftU_New::init(
     for(int iat = 0; iat < nat ; iat ++)
     {
         uvalue[iat].resize(lm+1);
-        ModuleBase::GlobalFunc::ZEROS(uvalue[iat], lm+1);
+        ModuleBase::GlobalFunc::ZEROS(uvalue[iat].data(), lm+1);
     }
 
     int iat = 0;
-    for(int it = 0; it < ntyp; it ++)
+    for(int it = 0; it < ntype; it ++)
     {
         for(int ia = 0; ia < na[it]; ia ++)
         {

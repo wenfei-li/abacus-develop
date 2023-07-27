@@ -5,6 +5,7 @@ void LCAO_DftU_New::cal_gedm(const int nat)
     ModuleBase::TITLE("LCAO_DftU_New", "cal_gedm");
     ModuleBase::timer::tick ("LCAO_DftU_New","cal_gedm");
 
+    const int pdm_size = (this->lmaxd * 2 + 1) * (this->lmaxd * 2 + 1);
     for(int is = 0; is < GlobalV::NSPIN; is ++)
     {
         for (int inl = 0;inl < this->inlmax;inl++)
@@ -37,11 +38,11 @@ void LCAO_DftU_New::cal_gedm(const int nat)
                         int ind = m1 * (2*l+1) + m2;
                         if(m1 == m2)
                         {
-                            this->gedm[is][inl][ind] = uvalue[iat][l] * (0.5 - occup);
+                            this->gedm[is][inl][ind] = uvalue[iat][l] * (0.5 - noccup);
                         }
                         else
                         {
-                            this->gedm[is][inl][ind] = uvalue[iat][l] * (- occup);
+                            this->gedm[is][inl][ind] = uvalue[iat][l] * (- noccup);
                         }
                     }
                 }

@@ -92,6 +92,9 @@ private:
     // 0 means no u is applied on that l channel of that atom
     std::vector<std::vector<double>> uvalue;
 
+    ///(Unit: Ry/Bohr) DFT+U force
+    ModuleBase::matrix	F_delta;
+
 //-------------------
 // subroutines, grouped according to the file they are in:
 //-------------------
@@ -255,7 +258,7 @@ public:
 //3. check_f_delta, which prints F_delta into F_delta.dat for checking
 
     //for gamma only, pulay and HF terms of force are calculated together
-    void cal_f_delta_gamma(const ModuleBase::matrix& dm/**< [in] density matrix*/,
+    void cal_f_delta_gamma(const std::vector<ModuleBase::matrix>& dm/**< [in] density matrix*/,
         const UnitCell &ucell,
         const LCAO_Orbitals &orb,
         Grid_Driver& GridD,
@@ -267,6 +270,7 @@ public:
         const LCAO_Orbitals &orb,
         Grid_Driver& GridD,
         const int nks,
+        const int * isk,
         const std::vector<ModuleBase::Vector3<double>> &kvec_d,
         const bool isstress, ModuleBase::matrix& svnl_dalpha);
 
