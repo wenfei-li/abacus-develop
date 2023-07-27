@@ -351,7 +351,7 @@ public:
 public:
 
     //for gamma only, pulay and HF terms of force are calculated together
-    void cal_f_delta_gamma(const ModuleBase::matrix& dm/**< [in] density matrix*/,
+    void cal_f_delta_gamma(const std::vector<ModuleBase::matrix>& dm/**< [in] density matrix*/,
         const UnitCell &ucell,
         const LCAO_Orbitals &orb,
         Grid_Driver& GridD,
