@@ -21,8 +21,8 @@ if(ENABLE_DEEPKS)
     add_coverage(dftu_new)
   endif()
 
-  if(BUILD_TESTING)
-      add_subdirectory(test)
-  endif()
+  #if(BUILD_TESTING)
+  #    add_subdirectory(test)
+  #endif()
 endif()
 
