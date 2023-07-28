@@ -266,7 +266,7 @@ void test_deepks::check_f_delta()
 	svnl_dalpha.create(3,3);
 	if(GlobalV::GAMMA_ONLY_LOCAL)
 	{
-		ld.cal_f_delta_gamma(dm
+		ld.cal_f_delta_gamma(dm,
             ucell,
             ORB,
             Test_Deepks::GridD,
