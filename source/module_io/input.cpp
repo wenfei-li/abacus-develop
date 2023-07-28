@@ -518,6 +518,8 @@ void Input::Default(void)
     yukawa_lambda = -1.0;
     omc = 0;
 
+    dftu_new = false;
+
     //==========================================================
     //    DFT+DMFT     Xin Qu added on 2020-08
     //==========================================================
@@ -1932,6 +1934,11 @@ bool Input::Read(const std::string &fn)
             ifs.ignore(150, '\n');
         else if (strcmp("yukawa_lambda", word) == 0)
             ifs.ignore(150, '\n');
+
+        else if(strcmp("dftu_new", word) == 0)
+        {
+            read_bool(ifs, dftu_new);
+        }
         //----------------------------------------------------------------------------------
         //         Xin Qu added on 2020-08 for DFT+DMFT
         //----------------------------------------------------------------------------------

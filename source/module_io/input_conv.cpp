@@ -369,6 +369,12 @@ void Input_Conv::Convert(void)
             GlobalC::dftu.U = INPUT.hubbard_u;
         }
     }
+
+    if(INPUT.dftu_new)
+    {
+        GlobalV::dftu_new = INPUT.dftu_new;
+    }
+
 #endif
     //--------------------------------------------
     // added by zhengdy-soc

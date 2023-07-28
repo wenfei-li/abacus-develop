@@ -462,6 +462,8 @@ class Input
     bool yukawa_potential;       ///< default:false
     double yukawa_lambda;        ///< default:-1.0, which means we calculate lambda
 
+    bool dftu_new;
+
     //==========================================================
     //    DFT+DMFT       Xin Qu added on 2021-08
     //==========================================================

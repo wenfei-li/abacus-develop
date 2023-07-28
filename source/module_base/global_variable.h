@@ -249,6 +249,8 @@ extern bool dft_plus_u;
 extern bool rpa_setorb;
 extern std::vector<std::string> rpa_orbitals;
 
+extern bool dftu_new;
+
 // ofdft sunliang add on 2022-05-11
 extern std::string of_kinetic; // Kinetic energy functional, such as TF, VW, WT
 extern std::string of_method;  // optimization method, include cg1, cg2, tn (default), bfgs
