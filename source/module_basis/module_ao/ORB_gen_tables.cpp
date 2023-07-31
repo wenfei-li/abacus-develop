@@ -753,8 +753,6 @@ double ORB_gen_tables::get_distance(const ModuleBase::Vector3<double> &R1, const
 	return dR.norm() * this->lat0;
 }
 
-#ifdef __DEEPKS
-
 void ORB_gen_tables::snap_psialpha_half(
 		const LCAO_Orbitals& orb,
 		std::vector<std::vector<double>> &nlm,
@@ -1036,5 +1034,3 @@ void ORB_gen_tables::snap_psialpha_half(
 	ModuleBase::timer::tick("ORB_gen_tables", "snap_psialpha_half");
 	return;
 }
-
-#endif

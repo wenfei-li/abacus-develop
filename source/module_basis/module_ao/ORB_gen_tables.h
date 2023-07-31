@@ -67,7 +67,6 @@ class ORB_gen_tables
 		const int &T0,
 		const bool &calc_deri)const; // mohan add 2021-04-25);
 	/// set as public because in hamilt_linear,
-#ifdef __DEEPKS
     void snap_psialpha_half(
 			const LCAO_Orbitals& orb,
 			std::vector<std::vector<double>> &nlm,
@@ -81,7 +80,6 @@ class ORB_gen_tables
 			const int& T0,
 			const int& I0
         ) const;
-#endif
     /// set as public because in hamilt_linear,
 	/// we need to destroy the tables: SR,TR,NR
 	/// after ionic optimization is done.

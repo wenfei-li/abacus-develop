@@ -17,7 +17,7 @@
 
 namespace GlobalC
 {
-    LCAO_DftU_New ld;
+    LCAO_DftU_New lcao_dftu_new;
 }
 
 //Constructor of the class

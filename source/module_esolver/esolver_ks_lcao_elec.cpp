@@ -3,6 +3,7 @@
 #include "module_hamilt_lcao/hamilt_lcaodft/hamilt_lcao.h"
 #include "module_hamilt_lcao/module_dftu/dftu.h"
 #include "module_hamilt_pw/hamilt_pwdft/global.h"
+#include "module_hamilt_lcao/module_dftu_new/LCAO_dftu_new.h"
 //
 #include "module_base/timer.h"
 #include "module_cell/module_neighbor/sltk_atom_arrange.h"
@@ -239,6 +240,17 @@ namespace ModuleESolver
 
             // renormalize the charge density
             pelec->charge->renormalize_rho();
+        }
+
+        if(GlobalV::dftu_new)
+        {
+            const Parallel_Orbitals* pv = this->UHM.LM->ParaV;
+            //build and save <psi(0)|alpha(R)> at beginning
+            GlobalC::lcao_dftu_new.build_psialpha(GlobalV::CAL_FORCE,
+                GlobalC::ucell,
+                GlobalC::ORB,
+                GlobalC::GridD,
+                GlobalC::UOT);        
         }
 
 #ifdef __DEEPKS

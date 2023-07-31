@@ -16,6 +16,8 @@
 #include "module_hamilt_lcao/module_dftu/dftu.h"
 #include "module_hamilt_pw/hamilt_pwdft/global.h"
 #include "module_io/print_info.h"
+#include "module_hamilt_lcao/module_dftu_new/LCAO_dftu_new.h"
+
 #ifdef __EXX
 // #include "module_rpa/rpa.h"
 #include "module_ri/RPA_LRI.h"
@@ -60,7 +62,7 @@ ESolver_KS_LCAO::ESolver_KS_LCAO()
 }
 ESolver_KS_LCAO::~ESolver_KS_LCAO()
 {
-    this->orb_con.clear_after_ions(GlobalC::UOT, GlobalC::ORB, GlobalV::deepks_setorb, GlobalC::ucell.infoNL.nproj);
+    this->orb_con.clear_after_ions(GlobalC::UOT, GlobalC::ORB, (GlobalV::deepks_setorb || GlobalV::dftu_new), GlobalC::ucell.infoNL.nproj);
 }
 
 void ESolver_KS_LCAO::Init(Input& inp, UnitCell& ucell)
@@ -393,7 +395,7 @@ void ESolver_KS_LCAO::Init_Basis_lcao(ORB_control& orb_con, Input& inp, UnitCell
                                  inp.lcao_dk,
                                  inp.lcao_dr,
                                  inp.lcao_rmax,
-                                 GlobalV::deepks_setorb,
+                                 (GlobalV::deepks_setorb || GlobalV::dftu_new),
                                  inp.out_mat_r,
                                  GlobalV::CAL_FORCE,
                                  GlobalV::MY_RANK);
@@ -408,7 +410,7 @@ void ESolver_KS_LCAO::Init_Basis_lcao(ORB_control& orb_con, Input& inp, UnitCell
                                  GlobalC::UOT,
                                  GlobalC::ORB,
                                  ucell.lat0,
-                                 GlobalV::deepks_setorb,
+                                 (GlobalV::deepks_setorb || GlobalV::dftu_new),
                                  Lmax,
                                  ucell.infoNL.nprojmax,
                                  ucell.infoNL.nproj,
@@ -569,6 +571,18 @@ void ESolver_KS_LCAO::hamilt2density(int istep, int iter, double ethr)
         }
         GlobalC::dftu.cal_energy_correction(istep);
         GlobalC::dftu.output();
+    }
+
+    if(GlobalV::dftu_new)
+    {
+        if (GlobalV::GAMMA_ONLY_LOCAL)
+        {
+            GlobalC::lcao_dftu_new.cal_projected_DM(LOC.dm_gamma,GlobalC::ucell,GlobalC::ORB,GlobalC::GridD);
+        }
+        else
+        {
+            GlobalC::lcao_dftu_new.cal_projected_DM_k(LOC.dm_k,GlobalC::ucell,GlobalC::ORB,GlobalC::GridD,kv.nks,kv.isk.data(),kv.kvec_d);
+        }
     }
 
 #ifdef __DEEPKS

@@ -12,7 +12,7 @@
 #include "module_base/timer.h"
 #include "module_base/constants.h"
 
-void stress_fill( 
+void stress_fill1( 
     const double& lat0_, 
     const double& omega_,
     ModuleBase::matrix& stress_matrix)
@@ -205,7 +205,7 @@ void LCAO_DftU_New::cal_f_delta_gamma(const std::vector<ModuleBase::matrix>& dm,
 
     if(isstress)
     {
-        stress_fill(ucell.lat0, ucell.omega, svnl_dalpha);
+        stress_fill1(ucell.lat0, ucell.omega, svnl_dalpha);
     }
 
     return;
@@ -416,7 +416,7 @@ void LCAO_DftU_New::cal_f_delta_k(const std::vector<ModuleBase::ComplexMatrix>& 
 
     if(isstress)
     {
-        stress_fill(ucell.lat0, ucell.omega, svnl_dalpha);
+        stress_fill1(ucell.lat0, ucell.omega, svnl_dalpha);
     }
     ModuleBase::timer::tick("LCAO_DftU_New","cal_f_delta_hf_k_new");
     return;

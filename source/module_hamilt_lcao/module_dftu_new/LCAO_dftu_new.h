@@ -310,7 +310,7 @@ public:
 
 namespace GlobalC
 {
-    extern LCAO_DftU_New ld;
+    extern LCAO_DftU_New lcao_dftu_new;
 }
 
 #endif
