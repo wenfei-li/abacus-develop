@@ -898,7 +898,7 @@ void UnitCell::print_stru_file(const std::string &fn, const int &type, const int
 		}
 
         // liuyu add 2023-06-25
-        if (GlobalV::deepks_setorb)
+        if (GlobalV::deepks_setorb || GlobalV::dftu_new)
         {
             ofs << "\nNUMERICAL_DESCRIPTOR" << std::endl;
             ofs << descriptor_file << std::endl;

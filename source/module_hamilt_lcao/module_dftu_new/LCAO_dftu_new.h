@@ -58,6 +58,7 @@ private:
 
     bool allocated_H = false;
     bool allocated_HR = false;
+    bool allocated_pdm = false;
 
     int nks;
 

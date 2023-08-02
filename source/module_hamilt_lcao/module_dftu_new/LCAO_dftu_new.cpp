@@ -62,22 +62,25 @@ LCAO_DftU_New::~LCAO_DftU_New()
             delete[] H_V_deltaR[is];
         }
         delete[] H_V_deltaR;
-}
+    }
 
     //=======1. to use deepks, pdm is required==========
     //delete pdm**
-    for(int is = 0; is < GlobalV::NSPIN; is ++)
+    if(allocated_pdm)
     {
-        for (int inl = 0;inl < this->inlmax;inl++)
+        for(int is = 0; is < GlobalV::NSPIN; is ++)
         {
-            delete[]  pdm[is][inl];
-            delete[] gedm[is][inl];
+            for (int inl = 0;inl < this->inlmax;inl++)
+            {
+                delete[]  pdm[is][inl];
+                delete[] gedm[is][inl];
+            }
+            delete[]  pdm[is];
+            delete[] gedm[is];
         }
-        delete[]  pdm[is];
-        delete[] gedm[is];
+        delete[]  pdm;
+        delete[] gedm;
     }
-    delete[]  pdm;
-    delete[] gedm;
 }
 
 void LCAO_DftU_New::init(
@@ -111,16 +114,20 @@ void LCAO_DftU_New::init(
     GlobalV::ofs_running << " nmax of projector = " << nmaxd << std::endl;
     
     //init pdm ***
-    const int pdm_size = (this->lmaxd * 2 + 1) * (this->lmaxd * 2 + 1);
-    this->pdm = new double** [GlobalV::NSPIN];
-    for(int is = 0; is < GlobalV::NSPIN; is ++)
+    if(!allocated_pdm)
     {
-        this->pdm[is] = new double* [this->inlmax];
-        for (int inl = 0;inl < this->inlmax;inl++)
+        const int pdm_size = (this->lmaxd * 2 + 1) * (this->lmaxd * 2 + 1);
+        this->pdm = new double** [GlobalV::NSPIN];
+        for(int is = 0; is < GlobalV::NSPIN; is ++)
         {
-            this->pdm[is][inl] = new double[pdm_size];
-            ModuleBase::GlobalFunc::ZEROS(this->pdm[is][inl], pdm_size);
+            this->pdm[is] = new double* [this->inlmax];
+            for (int inl = 0;inl < this->inlmax;inl++)
+            {
+                this->pdm[is][inl] = new double[pdm_size];
+                ModuleBase::GlobalFunc::ZEROS(this->pdm[is][inl], pdm_size);
+            }
         }
+        allocated_pdm = true;
     }
 
     this->init_index(ntype, nat, na, tot_inl, orb);

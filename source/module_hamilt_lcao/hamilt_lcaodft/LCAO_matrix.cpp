@@ -2,6 +2,7 @@
 #include "module_cell/module_neighbor/sltk_grid_driver.h"
 #include "module_hamilt_pw/hamilt_pwdft/global.h"
 #include "module_base/tool_threading.h"
+#include "module_hamilt_lcao/module_dftu_new/LCAO_dftu_new.h"
 #ifdef __DEEPKS
 #include "module_hamilt_lcao/module_deepks/LCAO_deepks.h"
 #endif
@@ -31,6 +32,41 @@ void LCAO_Matrix::divide_HS_in_frag(const bool isGamma, Parallel_Orbitals &pv, c
 	{
 		allocate_HS_k(this->ParaV->nloc);
 	}
+
+	if (GlobalV::dftu_new)
+	{
+        //allocate relevant data structures for calculating descriptors
+        std::vector<int> na;
+        na.resize(GlobalC::ucell.ntype);
+
+        // temporary code
+        std::vector<std::vector<double>> uvalue_in;
+        uvalue_in.resize(GlobalC::ucell.ntype);
+        for(int it=0;it<GlobalC::ucell.ntype;it++)
+        {
+            uvalue_in[it].resize(3);
+        }
+
+        for(int it=0;it<GlobalC::ucell.ntype;it++)
+        {
+            na[it] = GlobalC::ucell.atoms[it].na;
+        }
+		GlobalC::lcao_dftu_new.init(GlobalC::ORB,
+            GlobalC::ucell.nat,
+            GlobalC::ucell.ntype,
+            pv,
+            na,
+            uvalue_in);
+        if(isGamma)
+        {
+            GlobalC::lcao_dftu_new.allocate_V_delta(GlobalC::ucell.nat);
+        }
+        else
+        {
+            GlobalC::lcao_dftu_new.allocate_V_delta(GlobalC::ucell.nat, nks);
+        }
+	}
+
 #ifdef __DEEPKS
 	//wenfei 2021-12-19
     //preparation for DeePKS
