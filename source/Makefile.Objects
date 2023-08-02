@@ -87,6 +87,7 @@ ${OBJS_LCAO}\
 ${OBJS_PARALLEL_LCAO}\
 ${OBJS_VDW}\
 ${OBJS_DFTU}\
+${OBJS_DFTU_NEW}\
 
 OBJS_MAIN=main.o\
     driver.o\
@@ -151,6 +152,16 @@ OBJS_DEEPKS=LCAO_deepks.o\
         LCAO_deepks_torch.o\
         LCAO_deepks_vdelta.o\
         LCAO_deepks_interface.o\
+
+OBJS_DFTU_NEW=LCAO_dftu_new_fdelta.o\
+        LCAO_dftu_new_gedm.o\
+        LCAO_dftu_new_interface.o\
+        LCAO_dftu_new_io.o\
+        LCAO_dftu_new_mpi.o\
+        LCAO_dftu_new_pdm.o\
+        LCAO_dftu_new_psialpha.o\
+        LCAO_dftu_new_vdelta.o\
+        LCAO_dftu_new.o\
 
 OBJS_ELECSTAT=elecstate.o\
     elecstate_energy.o\
