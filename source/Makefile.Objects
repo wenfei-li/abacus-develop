@@ -42,6 +42,7 @@ VPATH=./src_global:\
 ./module_hamilt_lcao/hamilt_lcaodft:\
 ./module_hamilt_lcao/module_tddft:\
 ./module_hamilt_lcao/module_deepks:\
+./module_hamilt_lcao/module_dftu_new:\
 ./module_hamilt_lcao/module_dftu:\
 ./module_hamilt_lcao/hamilt_lcaodft/operator_lcao:\
 ./module_hamilt_lcao/module_gint:\
