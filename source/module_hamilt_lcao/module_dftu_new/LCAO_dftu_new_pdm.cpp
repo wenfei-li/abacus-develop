@@ -166,6 +166,10 @@ void LCAO_DftU_New::cal_projected_DM_k(const std::vector<ModuleBase::ComplexMatr
     const int * isk,
     const std::vector<ModuleBase::Vector3<double>> &kvec_d)
 {
+
+    ModuleBase::timer::tick("LCAO_DftU_New","cal_projected_DM_k");
+    ModuleBase::TITLE("LCAO_DftU_New", "cal_projected_DM_k");
+
     const int pdm_size = (this->lmaxd * 2 + 1) * (this->lmaxd * 2 + 1);
 
     if (GlobalV::init_chg == "file" && !this->init_pdm) //for DeePKS NSCF calculation 
@@ -197,7 +201,6 @@ void LCAO_DftU_New::cal_projected_DM_k(const std::vector<ModuleBase::ComplexMatr
         ModuleBase::timer::tick("LCAO_DftU_New","cal_projected_DM_k");
         return;
     }
-    ModuleBase::timer::tick("LCAO_DftU_New","cal_projected_DM_k");
 
     for(int is = 0; is < GlobalV::NSPIN; is ++)
     {

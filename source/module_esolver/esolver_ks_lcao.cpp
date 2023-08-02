@@ -583,6 +583,7 @@ void ESolver_KS_LCAO::hamilt2density(int istep, int iter, double ethr)
         {
             GlobalC::lcao_dftu_new.cal_projected_DM_k(LOC.dm_k,GlobalC::ucell,GlobalC::ORB,GlobalC::GridD,kv.nks,kv.isk.data(),kv.kvec_d);
         }
+        //GlobalC::lcao_dftu_new.check_projected_dm(); //for checking purpose
     }
 
 #ifdef __DEEPKS
