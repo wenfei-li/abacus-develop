@@ -1944,6 +1944,10 @@ bool Input::Read(const std::string &fn)
         {
             read_bool(ifs, dftu_new);
         }
+        else if (strcmp("dftu_lmax", word) == 0)
+            ifs.ignore(150, '\n');
+        else if (strcmp("dftu_uvalue", word) == 0)
+            ifs.ignore(150, '\n');
         //----------------------------------------------------------------------------------
         //         Xin Qu added on 2020-08 for DFT+DMFT
         //----------------------------------------------------------------------------------

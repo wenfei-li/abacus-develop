@@ -39,24 +39,21 @@ void LCAO_Matrix::divide_HS_in_frag(const bool isGamma, Parallel_Orbitals &pv, c
         std::vector<int> na;
         na.resize(GlobalC::ucell.ntype);
 
-        // temporary code
-        std::vector<std::vector<double>> uvalue_in;
-        uvalue_in.resize(GlobalC::ucell.ntype);
-        for(int it=0;it<GlobalC::ucell.ntype;it++)
-        {
-            uvalue_in[it].resize(3);
-        }
-
         for(int it=0;it<GlobalC::ucell.ntype;it++)
         {
             na[it] = GlobalC::ucell.atoms[it].na;
         }
+
+        std::vector<std::vector<double>> uvalue_in;
+        GlobalC::lcao_dftu_new.read_info(uvalue_in,GlobalC::ucell.ntype);
+
 		GlobalC::lcao_dftu_new.init(GlobalC::ORB,
             GlobalC::ucell.nat,
             GlobalC::ucell.ntype,
             pv,
             na,
             uvalue_in);
+
         if(isGamma)
         {
             GlobalC::lcao_dftu_new.allocate_V_delta(GlobalC::ucell.nat);

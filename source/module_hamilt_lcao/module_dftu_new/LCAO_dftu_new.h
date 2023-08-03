@@ -122,6 +122,14 @@ public:
     explicit LCAO_DftU_New();
     ~LCAO_DftU_New();
 
+    // The current input module does not quite support the initialization of LCAO_dftu_new,
+    // therefore I'll write a separate subroutine to do that.
+    void read_info(std::vector<std::vector<double>> & uvalue_in, const int ntype);
+
+    //some helper functions for reading the xml file
+    //scan for line containing certain pattern from file
+    std::string scan_file(std::ifstream &ifs, std::string pattern);
+
     ///Allocate memory and calculate the index of projector in all atoms. 
     ///(only for projector part, not including scf)
     void init(const LCAO_Orbitals &orb,

@@ -14,6 +14,7 @@
 
 #include "LCAO_dftu_new.h"
 #include "module_hamilt_pw/hamilt_pwdft/global.h"
+#include "module_base/parallel_common.h"
 
 namespace GlobalC
 {
@@ -279,4 +280,100 @@ void LCAO_DftU_New::allocate_V_deltaR(const int nnr)
         }
         allocated_HR = true;
     }
+}
+
+void LCAO_DftU_New::read_info(std::vector<std::vector<double>> & uvalue_in, const int ntype)
+{
+    ModuleBase::TITLE("LCAO_DftU_New","read_info");
+
+    int lmax;
+    if(GlobalV::MY_RANK == 0)
+    {
+        std::ifstream ifs("INPUT");
+        if(ifs.fail())
+        {
+            ModuleBase::WARNING_QUIT("lcao_dftu_new.cpp","input file not found!");
+        }
+
+        std::string line;
+        line = this->scan_file(ifs,"dftu_lmax");
+        
+        std::string key;
+        std::stringstream tmp;
+
+        tmp << line;
+        tmp >> key >> lmax;
+
+        uvalue_in.resize(ntype);
+        for(int it = 0; it < ntype; it ++)
+        {
+            uvalue_in[it].resize(lmax+1);
+        }
+
+        ifs.clear();
+        ifs.seekg (0, std::ios::beg);    
+
+        line = this->scan_file(ifs,"dftu_uvalue");
+        tmp.clear();
+        tmp << line;
+        tmp >> key;
+
+        for(int it = 0; it < ntype; it ++)
+        {
+            for(int il = 0; il < lmax+1; il ++)
+            {
+                tmp >> uvalue_in[it][il];
+            }
+        }
+    }
+
+#ifdef __MPI
+    Parallel_Common::bcast_int(lmax);
+    if(GlobalV::MY_RANK != 0)
+    {
+        uvalue_in.resize(ntype);
+        for(int it = 0; it < ntype; it ++)
+        {
+            uvalue_in[it].resize(lmax+1);
+        }
+    }
+
+    for(int it = 0; it < ntype; it ++)
+    {
+        for(int il = 0; il < lmax+1; il ++)
+        {
+            Parallel_Common::bcast_double(uvalue_in[it][il]);
+        }
+    }
+#endif
+
+    for(int it = 0; it < ntype; it ++)
+    {
+        for(int il = 0; il < lmax+1; il ++)
+        {
+            GlobalV::ofs_running << uvalue_in[it][il];
+        }
+    }    
+
+}
+
+std::string LCAO_DftU_New::scan_file(std::ifstream &ifs, std::string pattern)
+{
+    std::string line;
+
+    while (!ifs.eof())
+    {
+        getline(ifs,line);
+        if (line.find(pattern) != std::string::npos)
+        {
+            //replace all quotation marks by space
+            //to make it easier for later operations
+            std::replace( line.begin(), line.end(), '"', ' ');
+
+            return line;
+        }
+    }
+
+    ModuleBase::WARNING_QUIT("Paw_Element::scan_file","pattern not found in xml file!");
+    return 0;    
 }
