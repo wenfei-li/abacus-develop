@@ -3,6 +3,7 @@
 #include "module_base/tool_title.h"
 #include "module_hsolver/hsolver_lcao.h"
 #include "module_hamilt_pw/hamilt_pwdft/global.h"
+#include "module_hamilt_lcao/module_dftu_new/LCAO_dftu_new.h"
 
 #ifdef __ELPA
 #include "module_hsolver/diago_elpa.h"
@@ -185,6 +186,13 @@ void OperatorLCAO<T>::init(const int ik_in)
     }
     else
     {//it is the last node, do folding process together
+        
+        if(GlobalV::dftu_new) // after last node
+        {
+            GlobalC::lcao_dftu_new.cal_gedm(GlobalC::ucell.nat);
+            //GlobalC::lcao_dftu_new.check_gedm();
+        }
+
         this->folding_fixed(ik_in, this->kvec_d);
     }
 

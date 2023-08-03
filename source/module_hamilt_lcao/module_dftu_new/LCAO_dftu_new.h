@@ -210,6 +210,7 @@ public:
 //correction potential in DFT+U, defined as (U-J)(1/2-n), where n is the occupation matrix
 
     void cal_gedm(const int nat);
+    void check_gedm();
 
 //-------------------
 // LCAO_dftu_new_vdelta.cpp
