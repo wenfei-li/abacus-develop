@@ -42,6 +42,10 @@ double ElecState::get_dftu_energy()
 {
     return 0.6;
 }
+double ElecState::get_dftu_new_energy()
+{
+    return 0.7;
+}
 #endif
 } // namespace elecstate
 K_Vectors::K_Vectors()

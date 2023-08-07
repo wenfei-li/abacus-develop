@@ -4,6 +4,7 @@
 #include "module_base/timer.h"
 #include "module_base/tool_threading.h"
 #include "module_cell/module_neighbor/sltk_grid_driver.h"
+#include "module_hamilt_lcao/module_dftu_new/LCAO_dftu_new.h"
 #ifdef __DEEPKS
 #include "module_hamilt_lcao/module_deepks/LCAO_deepks.h"
 #endif
@@ -487,6 +488,11 @@ void LCAO_Matrix::folding_fixedH(
 								GlobalC::ld.H_V_delta_k[ik][iic] += GlobalC::ld.H_V_deltaR[index] * kphase;
 							}
 #endif
+							if(GlobalV::dftu_new)
+							{
+								const int is = GlobalC::lcao_dftu_new.return_isk()[ik];
+								GlobalC::lcao_dftu_new.H_V_delta_k[ik][iic] += GlobalC::lcao_dftu_new.H_V_deltaR[is][index] * kphase;
+							}
 						};
 						if (ModuleBase::GlobalFunc::IS_COLUMN_MAJOR_KS_SOLVER())
 						{

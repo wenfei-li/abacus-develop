@@ -76,7 +76,10 @@ namespace ModuleESolver
 #ifdef __DEEPKS
             GlobalC::ld.allocate_V_deltaR(pv->nnr);
 #endif
-
+            if(GlobalV::dftu_new)
+            {
+                GlobalC::lcao_dftu_new.allocate_V_deltaR(pv->nnr);
+            }
             // need to first calculae lgd.
             // using GridT.init.
             this->GridT.cal_nnrg(pv);

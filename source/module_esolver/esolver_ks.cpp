@@ -17,6 +17,8 @@
 #include "module_hamilt_pw/hamilt_pwdft/global.h"
 //---------------------------------------
 
+#include "module_hamilt_lcao/module_dftu_new/LCAO_dftu_new.h"
+
 namespace ModuleESolver
 {
 
@@ -97,6 +99,8 @@ namespace ModuleESolver
         // Setup the k points according to symmetry.
         this->kv.set(this->symm, GlobalV::global_kpoint_card, GlobalV::NSPIN, ucell.G, ucell.latvec);
         ModuleBase::GlobalFunc::DONE(GlobalV::ofs_running, "INIT K-POINTS");
+
+        if(GlobalV::dftu_new) GlobalC::lcao_dftu_new.get_isk(kv.isk);
 
         // print information
         // mohan add 2021-01-30

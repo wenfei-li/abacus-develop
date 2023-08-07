@@ -623,6 +623,10 @@ void LCAO_Matrix::update_Hloc2(const int &ik)
 			Hloc2[i] += GlobalC::ld.H_V_delta_k[ik][i];
 		}
 #endif
+        if(GlobalV::dftu_new)
+        {
+            Hloc2[i] += GlobalC::lcao_dftu_new.H_V_delta_k[ik][i];
+        }
 	}
 
 	return;

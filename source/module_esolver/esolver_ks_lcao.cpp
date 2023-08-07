@@ -503,6 +503,11 @@ void ESolver_KS_LCAO::eachiterinit(const int istep, const int iter)
     GlobalC::ld.set_hr_cal(true);
 #endif
 
+    if(GlobalV::dftu_new)
+    {
+        GlobalC::lcao_dftu_new.set_hr_cal(true);
+    }
+
     if (!GlobalV::GAMMA_ONLY_LOCAL)
     {
         this->UHM.GK.renew();
@@ -578,10 +583,12 @@ void ESolver_KS_LCAO::hamilt2density(int istep, int iter, double ethr)
         if (GlobalV::GAMMA_ONLY_LOCAL)
         {
             GlobalC::lcao_dftu_new.cal_projected_DM(LOC.dm_gamma,GlobalC::ucell,GlobalC::ORB,GlobalC::GridD);
+            GlobalC::lcao_dftu_new.cal_e_delta_band(LOC.dm_gamma);
         }
         else
         {
             GlobalC::lcao_dftu_new.cal_projected_DM_k(LOC.dm_k,GlobalC::ucell,GlobalC::ORB,GlobalC::GridD,kv.nks,kv.isk.data(),kv.kvec_d);
+            GlobalC::lcao_dftu_new.cal_e_delta_band_k(this->LOC.dm_k, kv.nks);
         }
         //GlobalC::lcao_dftu_new.check_projected_dm(); //for checking purpose
     }

@@ -125,6 +125,7 @@ class ElecState
 
 #ifdef __LCAO
     double get_dftu_energy();
+    double get_dftu_new_energy();
 #endif
 
 #ifdef __DEEPKS

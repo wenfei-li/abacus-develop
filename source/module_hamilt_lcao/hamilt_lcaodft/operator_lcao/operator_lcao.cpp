@@ -189,8 +189,17 @@ void OperatorLCAO<T>::init(const int ik_in)
         
         if(GlobalV::dftu_new) // after last node
         {
-            GlobalC::lcao_dftu_new.cal_gedm(GlobalC::ucell.nat);
-            //GlobalC::lcao_dftu_new.check_gedm();
+            if(GlobalC::lcao_dftu_new.get_hr_cal())
+            {
+                GlobalC::lcao_dftu_new.cal_gedm(GlobalC::ucell.nat);
+                //GlobalC::lcao_dftu_new.check_gedm();
+                if(!GlobalV::GAMMA_ONLY_LOCAL)
+                {
+                    GlobalC::lcao_dftu_new.add_v_delta_k(GlobalC::ucell, 
+                        GlobalC::ORB, GlobalC::GridD, this->LM->ParaV->nnr);
+                }
+                GlobalC::lcao_dftu_new.set_hr_cal(false);
+            }
         }
 
         this->folding_fixed(ik_in, this->kvec_d);

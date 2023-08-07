@@ -4,6 +4,7 @@
 #include "module_elecstate/potentials/gatefield.h"
 #include "module_hamilt_lcao/module_deepks/LCAO_deepks.h"
 #include "module_hamilt_lcao/module_dftu/dftu.h"
+#include "module_hamilt_lcao/module_dftu_new/LCAO_dftu_new.h"
 
 namespace elecstate
 {
@@ -37,6 +38,11 @@ double ElecState::get_solvent_model_Acav()
 double ElecState::get_dftu_energy()
 {
     return GlobalC::dftu.get_energy();
+}
+
+double ElecState::get_dftu_new_energy()
+{
+    return GlobalC::lcao_dftu_new.get_energy();
 }
 #endif
 

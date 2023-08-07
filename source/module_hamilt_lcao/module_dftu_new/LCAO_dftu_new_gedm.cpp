@@ -14,6 +14,8 @@ void LCAO_DftU_New::cal_gedm(const int nat)
         }
     }
 
+    this->E_delta = 0.0;
+
     for(int iat = 0; iat < nat; iat ++)
     {
         if(!if_has_u[iat]) continue;
@@ -46,6 +48,20 @@ void LCAO_DftU_New::cal_gedm(const int nat)
                         }
                     }
                 }
+
+                // Tr (nn) = \sum_mm' n_{mm'} n_{m'm}
+                double trace = 0.0;
+                for(int m1 = 0; m1 < 2*l+1; m1 ++)
+                {
+                    for(int m2 = 0; m2 < 2*l+1; m2 ++)
+                    {
+                        int ind1 = m1 * (2*l+1) + m2;
+                        int ind2 = m2 * (2*l+1) + m1;
+                        trace += this->pdm[is][inl][ind1] * this->pdm[is][inl][ind2];
+                    }
+                }
+
+                E_delta += 0.5 * uvalue[iat][l] * (noccup - trace);
             }
         }
     }

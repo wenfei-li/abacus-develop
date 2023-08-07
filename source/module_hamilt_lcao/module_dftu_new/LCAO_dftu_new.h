@@ -96,6 +96,12 @@ private:
     ///(Unit: Ry/Bohr) DFT+U force
     ModuleBase::matrix	F_delta;
 
+    // the reason for having this is because it is very cumbersome
+    // to pass isk around
+    std::vector<int> isk;
+
+    bool hr_cal = true;
+
 //-------------------
 // subroutines, grouped according to the file they are in:
 //-------------------
@@ -142,6 +148,19 @@ public:
     ///Allocate memory for correction to Hamiltonian
     void allocate_V_delta(const int nat, const int nks_in = 1);
     void allocate_V_deltaR(const int nnr);
+
+    void get_isk(std::vector<int> & isk_in)
+    {
+        isk.resize(isk_in.size());
+        for(int i = 0; i < isk_in.size(); i++) isk[i] = isk_in[i];
+    }
+    std::vector<int> return_isk() {return isk;}
+
+    //functions for hr status: 1. get value; 2. set value;
+    int get_hr_cal(){ return this->hr_cal; }
+    void set_hr_cal(bool cal){ this->hr_cal = cal; }
+
+    double get_energy() {return (E_delta - e_delta_band);}
 
 private:
 

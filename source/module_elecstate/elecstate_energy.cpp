@@ -248,6 +248,10 @@ void ElecState::cal_energies(const int type)
     {
         this->f_en.edftu = get_dftu_energy();
     }
+    if(GlobalV::dftu_new)
+    {
+        this->f_en.edftu = get_dftu_new_energy();
+    }
 #endif
 #ifdef __DEEPKS
     if (GlobalV::deepks_scf)

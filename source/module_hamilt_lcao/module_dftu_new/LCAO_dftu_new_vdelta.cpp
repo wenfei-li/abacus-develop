@@ -162,7 +162,11 @@ void LCAO_DftU_New::add_v_delta_k(const UnitCell &ucell,
 {
     ModuleBase::TITLE("LCAO_DftU_New", "add_v_delta_k");
     ModuleBase::timer::tick ("LCAO_DftU_New","add_v_delta_k");
-    ModuleBase::GlobalFunc::ZEROS(this->H_V_deltaR, nnr_in);
+
+	for(int is = 0; is < GlobalV::NSPIN; is ++)
+	{
+    	ModuleBase::GlobalFunc::ZEROS(this->H_V_deltaR[is], nnr_in);
+	}
 
     const double Rcut_Alpha = orb.Alpha[0].getRcut();
 
