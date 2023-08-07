@@ -100,8 +100,9 @@ namespace ModuleESolver
         this->kv.set(this->symm, GlobalV::global_kpoint_card, GlobalV::NSPIN, ucell.G, ucell.latvec);
         ModuleBase::GlobalFunc::DONE(GlobalV::ofs_running, "INIT K-POINTS");
 
+#ifdef __LCAO
         if(GlobalV::dftu_new) GlobalC::lcao_dftu_new.get_isk(kv.isk);
-
+#endif
         // print information
         // mohan add 2021-01-30
         Print_Info::setup_parameters(ucell, this->kv);
