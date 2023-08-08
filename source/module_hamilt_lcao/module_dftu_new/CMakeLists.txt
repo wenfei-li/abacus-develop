@@ -16,10 +16,6 @@ if(ENABLE_LCAO)
       OBJECT
       ${objects}
   )
-
-  if(ENABLE_COVERAGE)
-    add_coverage(dftu_new)
-  endif()
 endif()
 #if(BUILD_TESTING)
 #    add_subdirectory(test)
