@@ -278,7 +278,6 @@ void Charge::atomic_rho(const int spin_number_need,
     // centered at the nuclei
 #ifdef USE_PAW
         GlobalC::paw_cell.init_rho(rho_in);
-#endif
         double ne_tot = 0.0;
         std::vector<double> ne(spin_number_need);
         int spin0 = 1;
@@ -310,6 +309,7 @@ void Charge::atomic_rho(const int spin_number_need,
         for (int is = 0; is < spin_number_need; ++is)
             for (int ir = 0; ir < this->rhopw->nrxx; ++ir)
                 rho_in[is][ir] -= nhat[is][ir];
+#endif
     }
     else
     {
