@@ -81,6 +81,9 @@ public:
     // temporary add two getters for inl_index and gedm
     int get_inl(const int& T0, const int& I0, const int& L0, const int& N0) { return inl_index[T0](I0, L0, N0); }
     const double* get_gedms(const int& inl){ return gedm[inl]; }
+
+    bool get_if_equiv(){return if_equiv;}
+    int get_lmaxd(){return lmaxd;}
 //-------------------
 // private variables
 //-------------------
@@ -477,6 +480,7 @@ public:
     ///calculate partial of energy correction to descriptors
     void cal_gedm(const int nat);
     void check_gedm(void);
+    void cal_gedm_equiv(const int nat);
 
     //calculates orbital_precalc
     void cal_orbital_precalc(const std::vector<std::vector<ModuleBase::matrix>>& dm_hl/**<[in] density matrix*/,
@@ -553,6 +557,8 @@ public:
     //QO added on 2021-12-15
     void save_npy_o(const ModuleBase::matrix &bandgap/**<[in] \f$E_{base}\f$ or \f$E_{tot}\f$, in Ry*/, const std::string &o_file, const int nks);
     void save_npy_orbital_precalc(const int nat, const int nks);
+
+    void load_npy_gedm(const int nat);
 
 //-------------------
 // LCAO_deepks_mpi.cpp

@@ -347,25 +347,46 @@ void hamilt::DeePKS<hamilt::OperatorLCAO<TK, TR>>::calculate_HR()
         std::vector<int> trace_alpha_row;
         std::vector<int> trace_alpha_col;
         std::vector<double> gedms;
-        int ib=0;
-        for (int L0 = 0; L0 <= orb.Alpha[0].getLmax();++L0)
+        if(!GlobalC::ld.get_if_equiv())
         {
-            for (int N0 = 0;N0 < orb.Alpha[0].getNchi(L0);++N0)
+            int ib=0;
+            for (int L0 = 0; L0 <= orb.Alpha[0].getLmax();++L0)
             {
-                const int inl = GlobalC::ld.get_inl(T0, I0, L0, N0);
-                const double* pgedm = GlobalC::ld.get_gedms(inl);
-                const int nm = 2*L0+1;
-        
-                for (int m1=0; m1<nm; ++m1) // m1 = 1 for s, 3 for p, 5 for d
+                for (int N0 = 0;N0 < orb.Alpha[0].getNchi(L0);++N0)
                 {
-                    for (int m2=0; m2<nm; ++m2) // m1 = 1 for s, 3 for p, 5 for d
+                    const int inl = GlobalC::ld.get_inl(T0, I0, L0, N0);
+                    const double* pgedm = GlobalC::ld.get_gedms(inl);
+                    const int nm = 2*L0+1;
+            
+                    for (int m1=0; m1<nm; ++m1) // m1 = 1 for s, 3 for p, 5 for d
                     {
-                        trace_alpha_row.push_back(ib+m1);
-                        trace_alpha_col.push_back(ib+m2);
-                        gedms.push_back(pgedm[m1*nm+m2]);
+                        for (int m2=0; m2<nm; ++m2) // m1 = 1 for s, 3 for p, 5 for d
+                        {
+                            trace_alpha_row.push_back(ib+m1);
+                            trace_alpha_col.push_back(ib+m2);
+                            gedms.push_back(pgedm[m1*nm+m2]);
+                        }
                     }
+                    ib+=nm;
                 }
-                ib+=nm;
+            }
+        }
+        else
+        {
+            const double * pgedm = GlobalC::ld.get_gedms(iat0);
+            int nproj = 0;
+            for(int il = 0; il < GlobalC::ld.get_lmaxd() + 1; il++)
+            {
+                nproj += (2 * il + 1) * orb.Alpha[0].getNchi(il);
+            }
+            for(int iproj = 0; iproj < nproj; iproj ++)
+            {
+                for(int jproj = 0; jproj < nproj; jproj ++)
+                {
+                    trace_alpha_row.push_back(iproj);
+                    trace_alpha_col.push_back(jproj);
+                    gedms.push_back(pgedm[iproj*nproj+jproj]);
+                }
             }
         }
         const int trace_alpha_size = trace_alpha_row.size();
