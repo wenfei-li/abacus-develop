@@ -214,7 +214,7 @@ void LCAO_Deepks::init_gdmx(const int nat)
     this->gdmx = new double** [nat];
     this->gdmy = new double** [nat];
     this->gdmz = new double** [nat];
-    int pdm_size;
+    int pdm_size = 0;
     if(!if_equiv)
     {
         pdm_size = (this->lmaxd * 2 + 1) * (this->lmaxd * 2 + 1);
@@ -268,7 +268,7 @@ void LCAO_Deepks::init_gdmepsl()
 {
     this->gdm_epsl = new double** [6];
     
-    int pdm_size;
+    int pdm_size = 0;
     if(!if_equiv)
     {
         pdm_size = (this->lmaxd * 2 + 1) * (this->lmaxd * 2 + 1);
@@ -327,7 +327,7 @@ void LCAO_Deepks::allocate_V_delta(const int nat, const int nks)
     }
 
     //init gedm**
-    int pdm_size;
+    int pdm_size = 0;
     if(!if_equiv)
     {
         pdm_size = (this->lmaxd * 2 + 1) * (this->lmaxd * 2 + 1);
