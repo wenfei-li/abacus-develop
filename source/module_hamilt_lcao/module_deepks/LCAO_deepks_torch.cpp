@@ -424,11 +424,10 @@ inline void generate_py_files(const int lmaxd, const int nmaxd)
     
     ofs << "dm_flat,basis_info = t_make_pdm(dm_eig,basis)" << std::endl;
     ofs << "ec = model(dm_flat.double())" << std::endl;
-    ofs << "ec.backward()" << std::endl;
-    ofs << "gedm = dm_eig.grad" << std::endl << std::endl;
+    ofs << "gedm = torch.autograd.grad(ec,dm_eig,grad_outputs=torch.ones_like(ec))[0]" << std::endl << std::endl;
 
-    ofs << "np.save('ec.npy',ec.detach().numpy())" << std::endl;
-    ofs << "np.save('gedm.npy',gedm.numpy())" << std::endl;
+    ofs << "np.save('ec.npy',ec.double().detach().numpy())" << std::endl;
+    ofs << "np.save('gedm.npy',gedm.double().numpy())" << std::endl;
     ofs.close();
 
     ofs.open("basis.yaml");

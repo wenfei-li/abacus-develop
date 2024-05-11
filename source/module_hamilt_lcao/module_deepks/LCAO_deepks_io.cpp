@@ -67,6 +67,7 @@ void LCAO_Deepks::load_npy_gedm(const int nat)
     {
         //load gedm.npy
         std::vector<double> npy_gedm;
+        npy_gedm.resize(nat * this->des_per_atom);
         std::vector<unsigned long> dshape = {static_cast<unsigned long>(nat), static_cast<unsigned long>(this->des_per_atom)};
         std::string gedm_file = "gedm.npy";
         npy::LoadArrayFromNumpy(gedm_file, dshape, npy_gedm);
