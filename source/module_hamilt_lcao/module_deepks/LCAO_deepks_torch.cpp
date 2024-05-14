@@ -458,7 +458,8 @@ void LCAO_Deepks::cal_gedm_equiv(const int nat)
     if(GlobalV::MY_RANK==0)
     {
         std::string cmd = "python cal_gedm.py " + INPUT.deepks_model;
-        std::system(cmd.c_str());
+        int stat = std::system(cmd.c_str());
+        assert(stat == 0);
     }
     MPI_Barrier(MPI_COMM_WORLD);
 
