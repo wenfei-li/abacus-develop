@@ -75,7 +75,7 @@ void LCAO_Deepks::load_npy_gedm(const int nat)
         {
             for(int ides = 0; ides < this->des_per_atom; ides++)
             {
-                this->gedm[iat][ides] = npy_gedm[iat*this->des_per_atom + ides];
+                this->gedm[iat][ides] = npy_gedm[iat*this->des_per_atom + ides] * 2.0; //Ha to Ry
             }
         }
 
@@ -84,7 +84,7 @@ void LCAO_Deepks::load_npy_gedm(const int nat)
         std::vector<unsigned long> eshape = { 1ul };
         std::string ec_file = "ec.npy";
         npy::LoadArrayFromNumpy(ec_file, eshape, npy_ec);
-        this->E_delta = npy_ec[0];
+        this->E_delta = npy_ec[0] * 2.0; //Ha to Ry
     }
 
 #ifdef __MPI
