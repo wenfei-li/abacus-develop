@@ -137,7 +137,7 @@ class Input
     double press2;
     double press3;
     bool cal_stress; // calculate the stress
-
+    int nstream;
     std::string fixed_axes; // which axes are fixed
     bool fixed_ibrav; //whether to keep type of lattice; must be used along with latname
     bool fixed_atoms; //whether to fix atoms during vc-relax
@@ -187,6 +187,7 @@ class Input
     int pw_diag_nmax;
     int diago_cg_prec; // mohan add 2012-03-31
     int pw_diag_ndim;
+    bool diago_full_acc;
     double pw_diag_thr; // used in cg method
 
     int nb2d; // matrix 2d division.

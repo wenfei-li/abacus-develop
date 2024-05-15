@@ -108,6 +108,11 @@ void Input::Print(const std::string &fn) const
     {
         ModuleBase::GlobalFunc::OUTP(ofs, "pw_diag_ndim", pw_diag_ndim, "max dimension for davidson");
     }
+    else if (ks_solver == "dav_subspace")
+    {
+        ModuleBase::GlobalFunc::OUTP(ofs, "pw_diag_ndim", pw_diag_ndim, "dimension of workspace (number of wavefunction packets, at least 2 needed)");
+        ModuleBase::GlobalFunc::OUTP(ofs, "diago_full_acc", pw_diag_ndim, "if all the empty states are diagonalized at the same level of accuracy of the occupied ones.");
+    }
     ModuleBase::GlobalFunc::OUTP(ofs,
                                  "pw_diag_thr",
                                  pw_diag_thr,
@@ -241,6 +246,7 @@ ModuleBase::GlobalFunc::OUTP(ofs, "out_bandgap", out_bandgap, "if true, print ou
     ModuleBase::GlobalFunc::OUTP(ofs, "bx", bx, "division of an element grid in FFT grid along x");
     ModuleBase::GlobalFunc::OUTP(ofs, "by", by, "division of an element grid in FFT grid along y");
     ModuleBase::GlobalFunc::OUTP(ofs, "bz", bz, "division of an element grid in FFT grid along z");
+    ModuleBase::GlobalFunc::OUTP(ofs, "num_stream",nstream,"the nstream in compute the LCAO with CUDA");
 
     ofs << "\n#Parameters (6.Smearing)" << std::endl;
     ModuleBase::GlobalFunc::OUTP(ofs,
