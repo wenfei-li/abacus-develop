@@ -1835,6 +1835,14 @@ Warning: this function is not robust enough for the current version. Please try 
 - **Note**: A trained, traced model file is needed.
 - **Default**: False
 
+### deepks_equiv
+
+- **Type**: Boolean
+- **Availability**: numerical atomic orbital basis
+- **Description**: whether to use equivariant version of DeePKS
+- **Note**: the equivariant version of DeePKS-kit is still under development, so this feature is currently only intended for internal usage.
+- **Default**: False
+
 ### deepks_model
 
 - **Type**: String
