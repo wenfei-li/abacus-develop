@@ -767,9 +767,9 @@ void Input_Conv::Convert(void)
     GlobalV::deepks_out_labels = INPUT.deepks_out_labels;
     GlobalV::deepks_equiv = INPUT.deepks_equiv;
 
-    if(GlobalV::deepks_scf && GlobalV::deepks_bandgap)
+    if(GlobalV::deepks_equiv && GlobalV::deepks_bandgap)
     {
-        ModuleBase::WARNING_QUIT("Input_conv", "deepks_scf and deepks_bandgap cannot be used together");
+        ModuleBase::WARNING_QUIT("Input_conv", "deepks_equiv and deepks_bandgap cannot be used together");
     }
     if (GlobalV::deepks_out_unittest)
     {
