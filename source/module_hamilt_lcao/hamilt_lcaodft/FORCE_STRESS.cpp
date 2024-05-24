@@ -413,8 +413,7 @@ void Force_Stress_LCAO<T>::getForceStress(const bool isforce,
                         GlobalC::ld
                             .cal_gdmx_k(dm_k, GlobalC::ucell, GlobalC::ORB, GlobalC::GridD, kv.nks, kv.kvec_d, isstress);
                     }
-                    if (GlobalV::deepks_out_unittest)
-                        GlobalC::ld.check_gdmx(GlobalC::ucell.nat);
+                    if (GlobalV::deepks_out_unittest) { GlobalC::ld.check_gdmx(GlobalC::ucell.nat); }
                     GlobalC::ld.cal_gvx(GlobalC::ucell.nat);
 
                     if (GlobalV::deepks_out_unittest) { GlobalC::ld.check_gvx(GlobalC::ucell.nat); }
