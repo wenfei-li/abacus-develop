@@ -417,8 +417,7 @@ void Force_Stress_LCAO<T>::getForceStress(const bool isforce,
                         GlobalC::ld.check_gdmx(GlobalC::ucell.nat);
                     GlobalC::ld.cal_gvx(GlobalC::ucell.nat);
 
-                    if (GlobalV::deepks_out_unittest)
-                        GlobalC::ld.check_gvx(GlobalC::ucell.nat);
+                    if (GlobalV::deepks_out_unittest) { GlobalC::ld.check_gvx(GlobalC::ucell.nat); }
                     GlobalC::ld.save_npy_gvx(GlobalC::ucell.nat); //  /Bohr, grad_vx
                 }
             }
