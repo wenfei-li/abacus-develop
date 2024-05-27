@@ -158,9 +158,6 @@ void DeePKS<OperatorLCAO<double, double>>::contributeHR()
             GlobalC::GridD);
         GlobalC::ld.cal_descriptor(this->ucell->nat);        
         GlobalC::ld.cal_gedm(this->ucell->nat);
-        //GlobalC::ld.add_v_delta(*this->ucell,
-        //    GlobalC::ORB,
-        //    GlobalC::GridD);
         // recalculate the H_V_delta
         this->H_V_delta->set_zero();
         this->calculate_HR();
@@ -193,9 +190,6 @@ void DeePKS<OperatorLCAO<std::complex<double>, double>>::contributeHR()
         GlobalC::ld.cal_descriptor(this->ucell->nat);
         // calculate dE/dD
         GlobalC::ld.cal_gedm(this->ucell->nat);
-
-        // calculate H_V_deltaR from saved <alpha(0)|psi(R)>
-        //GlobalC::ld.add_v_delta_k(*this->ucell, GlobalC::ORB, GlobalC::GridD, this->LM->ParaV->nnr);
         
         // recalculate the H_V_delta
         if(this->H_V_delta == nullptr)
@@ -233,10 +227,6 @@ void DeePKS<OperatorLCAO<std::complex<double>, std::complex<double>>>::contribut
         // calculate dE/dD
         GlobalC::ld.cal_gedm(this->ucell->nat);
 
-        // calculate H_V_deltaR from saved <alpha(0)|psi(R)>
-        //GlobalC::ld
-        //    .add_v_delta_k(*this->ucell, GlobalC::ORB, GlobalC::GridD, this->LM->ParaV->nnr);
-        
         // recalculate the H_V_delta
         if(this->H_V_delta == nullptr)
         {
@@ -347,7 +337,7 @@ void hamilt::DeePKS<hamilt::OperatorLCAO<TK, TR>>::calculate_HR()
         std::vector<int> trace_alpha_row;
         std::vector<int> trace_alpha_col;
         std::vector<double> gedms;
-        if(!GlobalC::ld.get_if_equiv())
+        if(!GlobalV::deepks_equiv)
         {
             int ib=0;
             for (int L0 = 0; L0 <= orb.Alpha[0].getLmax();++L0)

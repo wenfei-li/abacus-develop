@@ -58,7 +58,7 @@ void LCAO_Deepks::cal_descriptor(const int nat)
     ModuleBase::TITLE("LCAO_Deepks", "cal_descriptor");
     ModuleBase::timer::tick("LCAO_Deepks", "cal_descriptor");
 
-    if(if_equiv)
+    if(GlobalV::deepks_equiv)
     {
         this->cal_descriptor_equiv(nat);
         return;
@@ -113,7 +113,7 @@ void LCAO_Deepks::check_descriptor(const UnitCell &ucell)
     if(GlobalV::MY_RANK!=0) return;
     std::ofstream ofs("descriptor.dat");
     ofs<<std::setprecision(10);
-    if(!if_equiv)
+    if(!GlobalV::deepks_equiv)
     {
         for (int it = 0; it < ucell.ntype; it++)
         {
@@ -424,11 +424,10 @@ inline void generate_py_files(const int lmaxd, const int nmaxd)
     
     ofs << "dm_flat,basis_info = t_make_pdm(dm_eig,basis)" << std::endl;
     ofs << "ec = model(dm_flat.double())" << std::endl;
-    ofs << "ec.backward()" << std::endl;
-    ofs << "gedm = dm_eig.grad" << std::endl << std::endl;
+    ofs << "gedm = torch.autograd.grad(ec,dm_eig,grad_outputs=torch.ones_like(ec))[0]" << std::endl << std::endl;
 
-    ofs << "np.save('ec.npy',ec.detach().numpy())" << std::endl;
-    ofs << "np.save('gedm.npy',gedm.numpy())" << std::endl;
+    ofs << "np.save('ec.npy',ec.double().detach().numpy())" << std::endl;
+    ofs << "np.save('gedm.npy',gedm.double().numpy())" << std::endl;
     ofs.close();
 
     ofs.open("basis.yaml");
@@ -459,7 +458,8 @@ void LCAO_Deepks::cal_gedm_equiv(const int nat)
     if(GlobalV::MY_RANK==0)
     {
         std::string cmd = "python cal_gedm.py " + INPUT.deepks_model;
-        std::system(cmd.c_str());
+        int stat = std::system(cmd.c_str());
+        assert(stat == 0);
     }
     MPI_Barrier(MPI_COMM_WORLD);
 
@@ -471,7 +471,7 @@ void LCAO_Deepks::cal_gedm_equiv(const int nat)
 //obtain from the machine learning model dE_delta/dDescriptor
 void LCAO_Deepks::cal_gedm(const int nat)
 {
-    if(if_equiv)
+    if(GlobalV::deepks_equiv)
     {
         this->cal_gedm_equiv(nat);
         return;

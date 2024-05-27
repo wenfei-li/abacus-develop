@@ -82,7 +82,6 @@ public:
     int get_inl(const int& T0, const int& I0, const int& L0, const int& N0) { return inl_index[T0](I0, L0, N0); }
     const double* get_gedms(const int& inl){ return gedm[inl]; }
 
-    bool get_if_equiv(){return if_equiv;}
     int get_lmaxd(){return lmaxd;}
 //-------------------
 // private variables
@@ -96,8 +95,6 @@ private:
     int nks_V_delta = 0;
 
     bool init_pdm = false; //for DeePKS NSCF calculation
-
-    bool if_equiv = false; //equivariant version
     
 	// deep neural network module that provides corrected Hamiltonian term and
 	// related derivatives.
@@ -335,26 +332,10 @@ public:
 //tr (rho * V_delta)
 
 //Four subroutines are contained in the file:
-//1. add_v_delta : adds deepks contribution to hamiltonian, for gamma only
-//2. add_v_delta_k : counterpart of 1, for multi-k
-//3. check_v_delta : prints H_V_delta for checking
-//4. check_v_delta_k : prints H_V_deltaR for checking
 //5. cal_e_delta_band : calculates e_delta_bands for gamma only
 //6. cal_e_delta_band_k : counterpart of 4, for multi-k
 
 public:
-
-    ///add dV to the Hamiltonian matrix
-    void add_v_delta(const UnitCell &ucell,
-        const LCAO_Orbitals &orb,
-        Grid_Driver& GridD);
-    void add_v_delta_k(const UnitCell &ucell,
-        const LCAO_Orbitals &orb,
-        Grid_Driver& GridD,
-        const int nnr_in);
-
-    void check_v_delta();
-    void check_v_delta_k(const int nnr);
 
     ///calculate tr(\rho V_delta)
     //void cal_e_delta_band(const std::vector<ModuleBase::matrix>& dm/**<[in] density matrix*/);

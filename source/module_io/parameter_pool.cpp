@@ -718,6 +718,10 @@ void input_parameters_set(std::map<std::string, InputParameter> input_parameters
     {
         INPUT.pw_diag_ndim = *static_cast<int*>(input_parameters["pw_diag_ndim"].get());
     }
+    else if (input_parameters.count("diago_full_acc") != 0)
+    {
+        INPUT.diago_full_acc = *static_cast<int*>(input_parameters["diago_full_acc"].get());
+    }
     else if (input_parameters.count("pw_diag_thr") != 0)
     {
         INPUT.pw_diag_thr = *static_cast<double*>(input_parameters["pw_diag_thr"].get());
@@ -1524,6 +1528,10 @@ void input_parameters_set(std::map<std::string, InputParameter> input_parameters
     else if (input_parameters.count("deepks_scf") != 0)
     {
         INPUT.deepks_scf = *static_cast<bool*>(input_parameters["deepks_scf"].get());
+    }
+    else if (input_parameters.count("deepks_equiv") != 0)
+    {
+        INPUT.deepks_equiv = *static_cast<bool*>(input_parameters["deepks_equiv"].get());
     }
     else if (input_parameters.count("deepks_bandgap") != 0)
     {
