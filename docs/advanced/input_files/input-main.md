@@ -1470,11 +1470,16 @@ These variables are used to control the output of properties.
 
 ### out_chg
 
-- **Type**: Boolean
-- **Description**: Whether to output the charge density (in Bohr^-3) on real space grids into the density files in the folder `OUT.${suffix}`. The files are named as:
-  - npsin = 1: SPIN1_CHG.cube;
-  - npsin = 2: SPIN1_CHG.cube, and SPIN2_CHG.cube;
-  - npsin = 4: SPIN1_CHG.cube, SPIN2_CHG.cube, SPIN3_CHG.cube, and SPIN4_CHG.cube.
+- **Type**: Integer
+- **Description**: 
+  - 1. Output the charge density (in Bohr^-3) on real space grids into the density files in the folder `OUT.${suffix}`. The files are named as:
+    - npsin = 1: SPIN1_CHG.cube;
+    - npsin = 2: SPIN1_CHG.cube, and SPIN2_CHG.cube;
+    - npsin = 4: SPIN1_CHG.cube, SPIN2_CHG.cube, SPIN3_CHG.cube, and SPIN4_CHG.cube.
+  - 2. On top of 1, also output the initial charge density. The files are named as:
+    - nspin = 1: SPIN1_CHG_INI.cube
+    - npsin = 2: SPIN1_CHG_INI.cube, and SPIN2_CHG_INI.cube;
+    - npsin = 4: SPIN1_CHG_INI.cube, SPIN2_CHG_INI.cube, SPIN3_CHG_INI.cube, and SPIN4_CHG_INI.cube.
 
   The circle order of the charge density on real space grids is: x is the outer loop, then y and finally z (z is moving fastest).
 
