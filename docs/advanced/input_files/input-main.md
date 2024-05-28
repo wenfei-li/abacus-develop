@@ -1497,6 +1497,10 @@ These variables are used to control the output of properties.
   - 2: Output the **electrostatic potential** on real space grids into `OUT.${suffix}/ElecStaticPot.cube`. The Python script named `tools/average_pot/aveElecStatPot.py` can be used to calculate the average electrostatic potential along the z-axis and outputs it into ElecStaticPot_AVE.
 
     Please note that the total local potential refers to the local component of the self-consistent potential, excluding the non-local pseudopotential. The distinction between the local potential and the electrostatic potential is as follows: local potential = electrostatic potential + XC potential.
+  - 3: Apart from 1, also output the **total local potential** of the initial charge density. The files are named as:
+    - npsin = 1: SPIN1_POT_INI.cube;
+    - npsin = 2: SPIN1_POT_INI.cube, and SPIN2_POT_INI.cube;
+    - npsin = 4: SPIN1_POT_INI.cube, SPIN2_POT_INI.cube, SPIN3_POT_INI.cube, and SPIN4_POT_INI.cube.
 - **Default**: 0
 
 ### out_dm
