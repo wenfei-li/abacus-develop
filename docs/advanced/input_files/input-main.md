@@ -1484,7 +1484,7 @@ These variables are used to control the output of properties.
   The circle order of the charge density on real space grids is: x is the outer loop, then y and finally z (z is moving fastest).
 
   If EXX(exact exchange) is calculated, (i.e. *[dft_fuctional](#dft_functional)==hse/hf/pbe0/scan0/opt_orb* or *[rpa](#rpa)==True*), the Hexx(R) files will be output in the folder `OUT.${suffix}` too, which can be read in NSCF calculation.
-- **Default**: False
+- **Default**: 0
 
 ### out_pot
 
