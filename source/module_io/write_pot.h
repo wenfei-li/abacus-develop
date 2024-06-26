@@ -12,6 +12,7 @@ void write_pot(
     const int &out_pot,
     const int &nspin, 
     const std::string &global_out_dir,
+    const std::string& fn,
 #ifdef __MPI
     const int& bz,
     const int& nbz,

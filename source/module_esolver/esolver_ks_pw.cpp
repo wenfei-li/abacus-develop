@@ -450,6 +450,7 @@ void ESolver_KS_PW<T, Device>::before_scf(const int istep)
     ModuleIO::write_pot(GlobalV::out_pot,
                         GlobalV::NSPIN,
                         GlobalV::global_out_dir,
+                        "_POT_INI",
 #ifdef __MPI
                         this->pw_big->bz,
                         this->pw_big->nbz,

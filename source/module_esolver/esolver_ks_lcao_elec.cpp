@@ -18,6 +18,7 @@
 #endif
 #include "module_elecstate/elecstate_lcao.h"
 #include "module_elecstate/module_dm/cal_dm_psi.h"
+#include "module_elecstate/potentials/H_Hartree_pw.h"
 #include "module_hamilt_general/module_ewald/H_Ewald_pw.h"
 #include "module_hamilt_general/module_vdw/vdw.h"
 #include "module_hamilt_lcao/hamilt_lcaodft/LCAO_domain.h"
@@ -307,6 +308,7 @@ void ESolver_KS_LCAO<TK, TR>::before_scf(const int istep)
     ModuleIO::write_pot(GlobalV::out_pot,
                         GlobalV::NSPIN,
                         GlobalV::global_out_dir,
+                        "_POT_INI",
 #ifdef __MPI
                         this->pw_big->bz,
                         this->pw_big->nbz,
@@ -595,6 +597,27 @@ void ESolver_KS_LCAO<TK, TR>::nscf(void)
     ModuleBase::TITLE("ESolver_KS_LCAO", "nscf");
 
     std::cout << " NON-SELF CONSISTENT CALCULATIONS" << std::endl;
+
+    ModuleBase::matrix vh(GlobalV::NSPIN, this->pw_rho->nrxx);
+    
+    vh = elecstate::H_Hartree_pw::v_hartree(GlobalC::ucell,this->pw_rho,GlobalV::NSPIN,this->pelec->charge->rho);
+
+    ModuleIO::write_pot(3,
+                        GlobalV::NSPIN,
+                        GlobalV::global_out_dir,
+                        "_VH",
+#ifdef __MPI
+                        this->pw_big->bz,
+                        this->pw_big->nbz,
+                        this->pw_rho->nplane,
+                        this->pw_rho->startz_current,
+#endif
+                        this->pw_rho->nx,
+                        this->pw_rho->ny,
+                        this->pw_rho->nz,
+                        vh);
+    exit(0);
+
 
     time_t time_start = std::time(NULL);
 

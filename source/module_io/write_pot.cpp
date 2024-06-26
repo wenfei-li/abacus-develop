@@ -14,6 +14,7 @@ void write_pot(
     const int &out_pot,
     const int &nspin, 
     const std::string &global_out_dir,
+    const std::string& fn, 
 #ifdef __MPI
     const int& bz,
     const int& nbz,
@@ -30,8 +31,7 @@ void write_pot(
     {
         for(int is = 0; is < nspin; is++)
         {
-            std::stringstream ss;
-            ss << global_out_dir << "SPIN" << is+1 << "_POT_INI.cube";
+            std::string output_file = global_out_dir + "SPIN" + std::to_string(is+1) + fn + ".cube";
             ModuleIO::write_pot_spin(
                     out_pot,
 #ifdef __MPI
@@ -42,7 +42,7 @@ void write_pot(
 #endif
                     is,
                     0, // iter
-                    ss.str(),
+                    output_file,
                     nx,
                     ny,
                     nz,
